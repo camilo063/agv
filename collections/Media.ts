@@ -1,0 +1,34 @@
+import type { CollectionConfig } from 'payload'
+import { autenticado, soloAdmin } from '../access/soloAdmin'
+
+/**
+ * Media — colección de uploads ÚNICA y AGNÓSTICA del proveedor (prompt §4).
+ *  - Local: sin plugin → Payload escribe en ./uploads (staticDir).
+ *  - Vercel Blob / S3: se activan por entorno desde lib/storage.ts SIN tocar esta
+ *    colección ni el código de la app. Payload sirve por ruta estática y preserva
+ *    el access control (la app nunca referencia URLs del proveedor).
+ *
+ * TODO(2º entregable): definir uso real (fotos de ganado/predios), tamaños/recortes
+ * y el access definitivo. De momento, lectura para autenticados.
+ */
+export const Media: CollectionConfig = {
+  slug: 'media',
+  upload: {
+    staticDir: 'uploads',
+    // TODO: definir `imageSizes`/`mimeTypes` según el uso (fotos desde celular).
+  },
+  admin: { group: 'Catálogo' },
+  access: {
+    read: autenticado,
+    create: autenticado,
+    update: soloAdmin,
+    delete: soloAdmin,
+  },
+  fields: [
+    {
+      name: 'alt',
+      type: 'text',
+      admin: { description: 'Texto alternativo (accesibilidad).' },
+    },
+  ],
+}

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    # Vars dummy: el build de Payload/Next NO conecta a la BD; solo necesita que existan.
+    env:
+      DATABASE_URI: postgres://agv:agv@localhost:5432/agv
+      PAYLOAD_SECRET: ci-dummy-secret-0123456789abcdef0123456789abcdef
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      CRON_SECRET: ci-dummy-cron
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Generate Payload types (verify no diff)
+        run: |
+          pnpm generate:types
+          git diff --exit-code payload-types.ts \
+            || (echo "::error::payload-types.ts está desactualizado. Corre 'pnpm generate:types' y commitea." && exit 1)
+
+      - name: Build
+        run: pnpm build

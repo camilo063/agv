@@ -1,0 +1,55 @@
+/* ============================================================================
+   Front del ganadero (UE) — estilos globales. SOLO aplica al grupo (app).
+   El admin de Payload usa su SCSS nativo (Tailwind NO aplica allí — RG-5).
+
+   Tailwind v4 CSS-first: los tokens de `theme/design-tokens.css` son la ÚNICA
+   fuente de color/tipografía. Aquí se MAPEAN a utilidades Tailwind con `@theme
+   inline` (sin duplicar valores: cada utilidad apunta al var del token).
+   ============================================================================ */
+
+@import 'tailwindcss';
+
+/* Fuente de verdad de los tokens (D-9/D-10 siguen abiertas — ver el archivo). */
+@import '../../../theme/design-tokens.css';
+
+@theme inline {
+  /* Marca */
+  --color-brand-primary: var(--color-brand-primary);
+  --color-brand-secondary: var(--color-brand-secondary);
+  --color-brand-light: var(--color-brand-light);
+  --color-brand-surface: var(--color-brand-surface);
+
+  /* Neutros */
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-placeholder: var(--color-placeholder);
+  --color-border: var(--color-border);
+  --color-surface: var(--color-surface);
+  --color-white: var(--color-white);
+
+  /* Estados semánticos = estados de evento (semántica de color = regla de negocio).
+     Activo→success · Próximo→warning · Vencido→error · Sin registro→neutral. */
+  --color-success-bg: var(--color-success-bg);
+  --color-success-text: var(--color-success-text);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-warning-text: var(--color-warning-text);
+  --color-error-bg: var(--color-error-bg);
+  --color-error-text: var(--color-error-text);
+  --color-neutral-bg: var(--color-neutral-bg);
+  --color-neutral-text: var(--color-neutral-text);
+  --color-info-bg: var(--color-info-bg);
+  --color-info-text: var(--color-info-text);
+
+  /* Tipografía — TODO(D-9): "Arial Rounded" no es web-safe; fallback en el token. */
+  --font-sans: var(--font-family-base);
+}
+
+html,
+body {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* UE = mobile-first a 412px (escala hacia arriba). Ver 08-diseno-y-prototipos.md. */

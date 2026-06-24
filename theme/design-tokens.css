@@ -1,0 +1,58 @@
+/* ============================================================================
+   AGV Salud Animal — Design Tokens
+   Fuente: Figma "AGV - Desing (Copy)" → página "Desing System"
+   ⚠️ Esta copia debe confirmarse como fuente de verdad (ver D-10 / diagnóstico).
+   Estos tokens son la ÚNICA fuente de color y tipografía del front del ganadero.
+   ============================================================================ */
+
+:root {
+  /* ---- Marca ------------------------------------------------------------- */
+  --color-brand-primary:   #69961F; /* Botones primarios, CTAs, iconos activos */
+  --color-brand-secondary: #95C11E; /* Acentos, ilustraciones, logo            */
+  --color-brand-light:     #EAF3DE; /* Fondos de tarjetas, chips verdes        */
+  --color-brand-surface:   #F5FAF0; /* Superficies suaves                      */
+
+  /* ---- Neutros ----------------------------------------------------------- */
+  --color-text-primary:    #212121; /* Títulos, body, labels principales       */
+  --color-text-secondary:  #616161; /* Subtítulos, descripciones               */
+  --color-placeholder:     #9E9E9E; /* Texto placeholder en campos             */
+  --color-border:          #E8E8E8; /* Bordes, divisores, separadores          */
+  --color-surface:         #F5F5F5; /* Fondos alternativos, filas de tabla     */
+  --color-white:           #FFFFFF; /* Tarjetas, modales, formularios          */
+
+  /* ---- Estados semánticos (mapeo a estados de evento) -------------------- */
+  /* Activo / Éxito */
+  --color-success-bg:      #E8F5E9;
+  --color-success-text:    #1B5E20;
+  /* Próximo / Alerta */
+  --color-warning-bg:      #FFF3E0;
+  --color-warning-text:    #E65100;
+  /* Vencido / Error */
+  --color-error-bg:        #FFEBEE;
+  --color-error-text:      #B71C1C;
+  /* Sin registro */
+  --color-neutral-bg:      #F5F5F5;
+  --color-neutral-text:    #616161;
+  /* Informativo */
+  --color-info-bg:         #D9EFFE;
+  --color-info-text:       #079BFF;
+
+  /* ---- Tipografía -------------------------------------------------------- */
+  /* ⚠️ D-9: "Arial Rounded" es propietaria (Monotype) y NO web-safe.
+     NO se puede servir vía @font-face sin licencia. Fallback definido abajo;
+     reemplazar por la decisión final (licenciar o alternativa libre). */
+  --font-family-base: "Arial Rounded MT Bold", "Baloo 2", "Nunito",
+                      system-ui, -apple-system, sans-serif;
+
+  --font-size-h1:          48px; /* Bold    — Títulos principales (techo desktop) */
+  --font-size-h2:          32px; /* Bold    — Subtítulos, secciones               */
+  --font-size-h3:          24px; /* Bold    — Títulos de tarjetas                 */
+  --font-size-body:        18px; /* Regular — Texto general                       */
+  --font-size-body-medium: 16px; /* Regular — Texto general                       */
+  --font-size-body-small:  14px; /* Bold    — Labels, chips                       */
+  --font-size-label:       18px; /* Bold    — Labels de formularios              */
+  --font-size-helper:      18px; /* Regular — Texto de ayuda, mínimo permitido    */
+
+  --font-weight-regular: 400;
+  --font-weight-bold:    700;
+}

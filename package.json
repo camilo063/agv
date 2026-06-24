@@ -1,0 +1,58 @@
+{
+  "name": "agv-salud-animal",
+  "version": "0.1.0",
+  "description": "AGV Salud Animal (MVP) — PWA de control sanitario del hato ganadero. Una sola app Next.js que aloja el admin (Payload 3.x) y el front del ganadero.",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@11.5.1",
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --no-server-fast-refresh",
+    "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev --no-server-fast-refresh",
+    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "3.85.1",
+    "@payloadcms/email-nodemailer": "3.85.1",
+    "@payloadcms/next": "3.85.1",
+    "@payloadcms/richtext-lexical": "3.85.1",
+    "@payloadcms/storage-vercel-blob": "3.85.1",
+    "cross-env": "10.1.0",
+    "graphql": "16.14.2",
+    "next": "16.2.9",
+    "payload": "3.85.1",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "sharp": "0.35.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.1",
+    "@types/node": "20.19.43",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.9",
+    "prettier": "3.8.4",
+    "tailwindcss": "4.3.1",
+    "typescript": "5.9.3"
+  },
+  "comments": {
+    "stack": "Versiones pineadas exactas (sin ^/~) por RG-3/RG-4. Payload serie 3.x (NO 4.x). Next 16.2.x (NO 15.5–16.1: no soportado por Payload 3.x).",
+    "typescript": "Pineado en 5.9.3 (no 6.x): typescript-eslint@8 que trae eslint-config-next aún no soporta TS 6 de forma estable. Subir cuando la cadena de lint lo soporte.",
+    "eslint": "Pineado en 9.x (no 10.x) por la misma razón de compatibilidad de plugins.",
+    "futuro-s3": "Para migrar storage a AWS S3 (ver lib/storage.ts y README): pnpm add @payloadcms/storage-s3 @aws-sdk/client-s3 @aws-sdk/lib-storage",
+    "futuro-pwa": "Serwist (service worker) pendiente de integrar — ver README §PWA. Manifest ya incluido (app/(app)/manifest.ts)."
+  }
+}

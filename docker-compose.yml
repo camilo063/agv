@@ -1,0 +1,24 @@
+# Postgres LOCAL para desarrollo. Misma major que Neon (PG 16) → paridad local↔Neon.
+# NO usar SQLite en local: el driver y el schema difieren de Postgres (deuda oculta).
+# `DATABASE_URI` del .env apunta a este servicio (localhost:5432).
+services:
+  postgres:
+    image: postgres:16
+    container_name: agv-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agv
+      POSTGRES_PASSWORD: agv
+      POSTGRES_DB: agv
+    ports:
+      - '5432:5432'
+    volumes:
+      - agv_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U agv -d agv']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  agv_pgdata:

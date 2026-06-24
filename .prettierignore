@@ -1,0 +1,7 @@
+.next
+node_modules
+uploads
+pnpm-lock.yaml
+payload-types.ts
+docs
+theme/design-tokens.css

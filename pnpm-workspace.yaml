@@ -1,0 +1,6 @@
+# pnpm 11 lee aquí qué build scripts nativos se permiten. Payload bundlea su config
+# con esbuild; sharp procesa imágenes; unrs-resolver lo usa el resolver de ESLint.
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
