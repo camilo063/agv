@@ -27,9 +27,14 @@ export type PredioInitial = {
 export function PredioForm({
   predioId,
   initial,
+  responsable,
 }: {
   predioId?: string
   initial?: PredioInitial
+  /* Solo flujo admin (HU-11.1: "¿Desea registrar un predio para este usuario?"):
+     el UAGV crea el predio a nombre de un UE. Para un UE logueado el servidor
+     fuerza responsable=él mismo e ignora este valor (hooks/predioResponsable). */
+  responsable?: string
 }) {
   const router = useRouter()
   const esEdicion = Boolean(predioId)
@@ -90,6 +95,7 @@ export function PredioForm({
     setLoading(true)
     try {
       const body = {
+        ...(responsable ? { responsable } : {}),
         nombre: form.nombre,
         tipoExplotacion: form.tipoExplotacion || null,
         direccion: form.direccion || null,
