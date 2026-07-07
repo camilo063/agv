@@ -9,10 +9,8 @@ import { recalcularProximaFecha } from '../hooks/trazabilidadEvento'
  * `proximaFecha` vs hoy (umbral D-1). Ver 02-reglas §1 y 03-modelo.
  *
  * Acceso: el UE gestiona los eventos de sus predios; el URT solo lee los de su zona;
- * el admin todo. El scope por zona se hereda del predio (campo `predio.departamento`).
- * TODO(acceso): afinar el constraint de URT para Eventos vía el departamento del
- * predio relacionado (join). De momento se delega el filtro fuerte a Predios.read
- * y aquí se restringe por rol; el endpoint de stats aplica el filtro de zona en backend.
+ * el admin todo. El scope por zona del URT se hereda del predio relacionado usando
+ * dot-notation de Payload en el constraint: `predio.departamento in zonas`.
  */
 export const Eventos: CollectionConfig = {
   slug: 'eventos',
@@ -22,7 +20,7 @@ export const Eventos: CollectionConfig = {
     group: 'Operación',
   },
   access: {
-    read: readScopePorZona({ responsableField: 'responsable' }),
+    read: readScopePorZona({ zonaField: 'predio.departamento', responsableField: 'responsable' }),
     create: ({ req: { user } }) => user?.role === 'UAGV' || user?.role === 'UE',
     update: ({ req: { user } }) => user?.role === 'UAGV' || user?.role === 'UE',
     delete: ({ req: { user } }) => user?.role === 'UAGV',

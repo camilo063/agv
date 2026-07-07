@@ -35,8 +35,11 @@ export default buildConfig({
     meta: { titleSuffix: '— AGV Salud Animal' },
     // TODO(theming): logo + paleta ligeros del admin (RG-5). Tailwind NO aplica al admin.
   },
+  // Back-office técnico (UI nativa de Payload) en /cms — SOLO UAGV.
+  // Las pantallas aprobadas en Figma del personal interno viven en /agv como
+  // front custom (route group (app)), consumiendo la Local API. Decisión A-1 (README).
   routes: {
-    admin: '/agv',
+    admin: '/cms',
   },
   collections: [
     Users,

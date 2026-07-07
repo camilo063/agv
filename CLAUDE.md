@@ -75,11 +75,13 @@
 - **Correo:** adaptador Payload (nodemailer → AWS SES o Resend — ver D-6).
 - **Infra:** AWS ECS (contenedor persistente) + RDS Postgres. **No serverless puro.**
 
-**Route groups:**
+**Route groups (Decisión A-1 — arquitectura híbrida, ver README §Arquitectura):**
 ```
 app/
-  (payload)/      # admin Payload, montado en /agv  (aislado del bundle público)
-  (app)/          # front ganadero: /login, dashboard, predios, eventos
+  (payload)/      # UI nativa de Payload, montada en /cms  (back-office técnico, SOLO UAGV)
+  (app)/          # TODO lo visual aprobado en Figma (Tailwind + tokens):
+    login/, dashboard/, predios/, eventos/, perfil/   # front ganadero (UE, mobile 412px)
+    agv/          # front interno custom (UAGV/URT, desktop): login, dashboard, usuarios
 payload.config.ts # colecciones = fuente de verdad del modelo de datos
 collections/      # Users, Predios, Eventos, Productos, Zonas, EmailTemplates...
 endpoints/        # custom endpoints (recordatorios, stats de dashboards)
@@ -87,7 +89,13 @@ jobs/             # recordatorios HU-09 (3 y 0 días)
 access/           # control de acceso por rol/zona
 ```
 
-**URLs:** `/login` (ganaderos, vía QR) · `/agv/login` (personal interno).
+> **Decisión A-1:** las 5 pantallas del Figma del Usuario Interno son **custom** (mismos
+> componentes Tailwind del UE, datos vía Local API con `overrideAccess:false`). La UI
+> nativa de Payload queda en `/cms` como back-office técnico (catálogo, zonas, plantillas)
+> solo para UAGV. Payload sigue siendo el backbone completo de datos/auth/RBAC/jobs.
+
+**URLs:** `/login` (ganaderos, vía QR) · `/agv/login` (personal interno, custom) ·
+`/cms` (back-office Payload, solo UAGV).
 
 ---
 
@@ -98,17 +106,17 @@ access/           # control de acceso por rol/zona
 
 | ID | Falta decidir |
 |---|---|
-| D-1 | Umbral: estado "Próximo" ≤5 días, emails a 3 y 0 días — confirmar coherencia. |
 | D-2 | Tabla de mapeo `categorías de animales → tipo de explotación` (inferencia). |
 | D-3 | Qué entidades de dominio son editables vs. protegidas con soft-delete. |
-| D-4 | Intervalo de "Carbones" — el board fija **6 meses** (DF-4), confirmar y cerrar. |
 | D-6 | Adaptador de correo: AWS SES vs Resend. |
 | D-8 | Costo de infra mensual + alcance de garantía. |
 | D-9 | Tipografía: "Arial Rounded" no es web-safe — licenciar o elegir alternativa libre. |
-| D-10 | **Figma canónico**: ¿"AGV - Desing" (el de los prototipos) o "AGV - Desing Copy"? Cerrar antes de tokens. |
 
 **Cerradas (no reabrir):** identificador = email · offline excluido · catálogo administrable (CRUD) ·
-una sola app Next.js · sin NestJS · recuperación de contraseña **manual** por diseño.
+una sola app Next.js · sin NestJS · recuperación de contraseña **manual** por diseño ·
+**D-1**: "Próximo" ≤5 días, emails a 3 y 0 días (`AGV_DIAS_PROXIMO`, `AGV_DIAS_EMAIL`) ·
+**D-4/DF-4**: catálogo canónico sembrado (`scripts/seed.ts`), Carbones = 6 meses ·
+**D-10**: Figma canónico = `AGV - Desing` (`PqS9akeg8ag8hSanNEp3Ue`, el de los prototipos).
 
 **Discrepancias board↔HU pendientes:** DF-1…DF-8 en `07-flujos.md` (etiquetas Sí/No invertidas,
 WhatsApp fuera de alcance, nombres de catálogo divergentes, etc.).

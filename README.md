@@ -50,9 +50,19 @@ pnpm generate:types
 pnpm dev
 ```
 
-- **Admin (personal interno):** http://localhost:3000/agv  · login en `/agv/login`.
-  El primer arranque pide crear el primer usuario admin.
-- **Front (ganadero, vía QR):** http://localhost:3000/login → dashboard en `/dashboard`.
+- **Front ganadero (UE, vía QR):** http://localhost:3000/login → dashboard en `/dashboard`.
+- **Panel interno custom (UAGV/URT):** http://localhost:3000/agv · login en `/agv/login`.
+- **Back-office Payload (solo UAGV):** http://localhost:3000/cms — el primer arranque
+  pide crear el primer usuario admin aquí.
+
+> **Decisión A-1 (arquitectura híbrida):** Payload es el backbone completo de datos
+> (colecciones, auth, RBAC por zona, jobs, API). **Todo lo visual aprobado en Figma**
+> (front del ganadero **y** las 5 pantallas del personal interno) es **custom** con
+> Tailwind + design system, leyendo vía Local API con `overrideAccess:false` (el scope
+> por rol/zona lo aplica el servidor). La UI nativa de Payload queda en `/cms` como
+> back-office técnico (catálogo, zonas, plantillas de correo) exclusivo de UAGV
+> (`access.admin` en Users). Figma canónico (D-10 cerrado): `AGV - Desing`
+> (`PqS9akeg8ag8hSanNEp3Ue`), páginas `41:1092` (UE) y `41:1093` (interno).
 
 > Las **migraciones** las gestiona Payload (Drizzle). En dev, Payload sincroniza el schema
 > automáticamente (`push`). Para stage/prd se generan migraciones versionadas
@@ -77,18 +87,25 @@ pnpm dev
 
 ```
 app/
-  (payload)/          # admin Payload (/agv), AISLADO del bundle público
+  (payload)/          # UI nativa de Payload (/cms), AISLADA del bundle público
     layout.tsx
-    custom.scss       # theming ligero del admin (TODO logo/paleta)
-    agv/[[...segments]]/   # vistas del admin (RootPage)
+    custom.scss       # theming ligero del back-office (TODO logo/paleta)
+    cms/[[...segments]]/   # vistas del admin nativo (RootPage)
     api/              # REST (/api), GraphQL (/api/graphql)
-  (app)/              # front del ganadero (UE) — Tailwind + tokens, mobile-first 412px
+  (app)/              # TODO lo visual del Figma — Tailwind + tokens
     layout.tsx        # root layout propio (2 root layouts, route groups hermanos)
     manifest.ts       # PWA manifest (instalable, SIN offline)
-    login/            # /login (shell cableado a la auth de Payload)
-    dashboard/        # /dashboard (esqueleto + FootBar)
-    eventos/nuevo/    # placeholder (feature del siguiente entregable)
-    components/       # Button, Chip (estado), FootBar
+    login/            # /login — UE (mobile-first 412px)
+    dashboard/        # /dashboard — UE: tarjetas de predios
+    predios/          # /predios/nuevo, /predios/[id]/editar — UE
+    perfil/           # /perfil — UE (datos + cerrar sesión)
+    eventos/nuevo/    # placeholder (siguiente entregable)
+    agv/              # PANEL INTERNO custom (UAGV/URT, desktop 1440):
+      login/          #   /agv/login — split-screen (Figma 46:2491)
+      page.tsx        #   /agv — dashboard stats (HU-13/14; tabla pendiente)
+      usuarios/       #   /agv/usuarios — gestión de usuarios (HU-11, pendiente)
+      components/     #   HeaderInterno, LogoutInterno
+    components/       # Button, Chip (estado), FootBar, PredioCard
     styles/globals.css# @theme inline → tokens
 collections/          # Users, Predios, Eventos, Productos, Zonas, EmailTemplates,
                       # TiposEvento, Categorias, TiposExplotacion, Media (STUBS)
@@ -173,15 +190,15 @@ hay diff) → `build`. Secrets nunca en el repo.
 ## TODO abiertos (NO inventar valores — `docs/05-decisiones-abiertas.md`)
 
 ### Decisiones abiertas (D-N) tocadas en el código
-| ID | Dónde está marcado | Qué falta |
+| ID | Estado | Dónde / qué |
 |---|---|---|
-| **D-1** | `lib/reglas.ts`, `endpoints/recordatorios.ts`, `vercel.json` | Umbral estado "Próximo" (≤5d?) y emails (3 y 0 días). Sin default; falla en voz alta. Configurar `AGV_DIAS_PROXIMO`. |
-| **D-2** | `collections/Predios.ts`, `TiposExplotacion.ts`, `Categorias.ts` | Tabla de mapeo categorías→tipo de explotación (inferencia). Sin ella, el campo queda nulo. |
-| **D-3** | `collections/TiposEvento.ts`, `Categorias.ts`, `TiposExplotacion.ts` | Qué entidades de dominio son editables vs protegidas; bloquear borrado si están en uso. |
-| **D-4** | `collections/Productos.ts`, `hooks/trazabilidadEvento.ts` | Intervalo de "Carbones" (board sugiere 6m). Cierra junto con DF-4 (seed). |
-| **D-6** | `lib/email.ts`, `.env.example` | Adaptador de correo: AWS SES vs Resend. |
-| **D-9** | `theme/design-tokens.css`, `globals.css` | Tipografía: "Arial Rounded" no es web-safe. Licenciar o alternativa libre. |
-| **D-10** | `docs/04`, `docs/08` | Figma canónico (`AGV - Desing` vs `…Copy`) antes de extraer tokens/componentes. |
+| **D-1** | ✅ CERRADA | "Próximo" ≤5 días; emails 3 y 0 (`AGV_DIAS_PROXIMO=5`, `AGV_DIAS_EMAIL=3,0`). |
+| **D-2** | Abierta | `Predios.ts`, `TiposExplotacion.ts` — mapeo categorías→explotación (inferencia). Sin él, campo nulo. |
+| **D-3** | Abierta | `TiposEvento.ts`, `Categorias.ts`, `TiposExplotacion.ts` — bloquear borrado si en uso. |
+| **D-4** | ✅ CERRADA | Carbones = 6 meses; catálogo canónico sembrado (`scripts/seed.ts`). |
+| **D-6** | Abierta | `lib/email.ts`, `.env.example` — SES vs Resend. |
+| **D-9** | Abierta | `theme/design-tokens.css` — tipografía (licenciar o alternativa libre). |
+| **D-10** | ✅ CERRADA | Figma canónico = `AGV - Desing` (`PqS9akeg8ag8hSanNEp3Ue`). |
 
 ### Discrepancias board↔HU (DF-N — `docs/07-flujos.md`)
 - **DF-1** registro: etiquetas Sí/No invertidas (email existente → error). → lógica HU-01 al implementar registro.

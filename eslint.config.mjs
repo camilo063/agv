@@ -12,7 +12,7 @@ const config = [
       'node_modules/**',
       'uploads/**',
       'payload-types.ts',
-      'app/(payload)/agv/importMap.js',
+      'app/(payload)/cms/importMap.js',
     ],
   },
 ]

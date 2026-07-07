@@ -19,6 +19,9 @@ export const Users: CollectionConfig = {
     group: 'Acceso',
   },
   access: {
+    // Back-office nativo (/cms): SOLO UAGV. URT y UE usan los fronts custom
+    // (/agv y /login respectivamente) — decisión A-1 (arquitectura híbrida).
+    admin: ({ req: { user } }) => user?.role === 'UAGV',
     // Lectura: admin ve todo; cada usuario puede leerse a sí mismo.
     read: ({ req: { user } }) => {
       if (!user) return false
