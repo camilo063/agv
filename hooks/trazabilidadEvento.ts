@@ -25,10 +25,12 @@ export const recalcularProximaFecha: CollectionBeforeChangeHook = async ({ data,
   }
 
   // El intervalo es administrable (vive en Productos, CRUD). NO se hardcodea aquí.
+  // `req` mantiene la lectura en la misma transacción de la operación en curso.
   const producto = await req.payload.findByID({
     collection: 'productos',
     id: data.producto,
     depth: 0,
+    req,
   })
 
   const intervalo = (producto as { intervalo?: { valor?: number; unidad?: 'dias' | 'meses' } })

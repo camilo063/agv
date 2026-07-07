@@ -37,8 +37,11 @@ export const validarEvento: CollectionBeforeValidateHook = async ({
   }
 
   // (2) + (3) Propiedad del predio y responsable denormalizado.
+  // `req` mantiene la lectura en la MISMA transacción (evita leer un predio
+  // stale cuando este hook corre dentro de otra operación, p. ej. el cambio
+  // de responsable del predio que sincroniza sus eventos).
   if (predioId) {
-    const predio = await req.payload.findByID({ collection: 'predios', id: predioId, depth: 0 })
+    const predio = await req.payload.findByID({ collection: 'predios', id: predioId, depth: 0, req })
     const respId = idOf((predio as { responsable?: unknown }).responsable)
     if (req.user?.role === 'UE' && respId !== String(req.user.id)) {
       throw new APIError('No puedes registrar eventos en un predio ajeno.', 403)
@@ -52,6 +55,7 @@ export const validarEvento: CollectionBeforeValidateHook = async ({
       collection: 'productos',
       id: productoId,
       depth: 0,
+      req,
     })
     const tipoDelProducto = idOf((producto as { tipoEvento?: unknown }).tipoEvento)
     if (tipoDelProducto !== tipoId) {

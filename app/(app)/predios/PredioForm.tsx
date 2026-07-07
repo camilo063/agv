@@ -28,6 +28,7 @@ export function PredioForm({
   predioId,
   initial,
   responsable,
+  volverA = '/dashboard',
 }: {
   predioId?: string
   initial?: PredioInitial
@@ -35,6 +36,8 @@ export function PredioForm({
      el UAGV crea el predio a nombre de un UE. Para un UE logueado el servidor
      fuerza responsable=él mismo e ignora este valor (hooks/predioResponsable). */
   responsable?: string
+  /* Destino de "Cancelar" y del guardado en edición (admin: /agv/predios/[id]). */
+  volverA?: string
 }) {
   const router = useRouter()
   const esEdicion = Boolean(predioId)
@@ -119,7 +122,7 @@ export function PredioForm({
       }
       const json = await res.json()
       if (esEdicion) {
-        router.push('/dashboard')
+        router.push(volverA)
         router.refresh()
       } else {
         // Modal de éxito con la CTA "Registrar evento" (flujo UE-Registro de predios).
@@ -271,7 +274,7 @@ export function PredioForm({
           {loading ? 'Guardando…' : esEdicion ? 'Guardar cambios' : 'Guardar'}
         </Button>
         <Link
-          href="/dashboard"
+          href={volverA}
           className="inline-flex h-11 items-center justify-center text-sm font-bold text-text-secondary"
         >
           Cancelar

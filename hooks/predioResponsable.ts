@@ -1,4 +1,4 @@
-import type { CollectionBeforeChangeHook } from 'payload'
+import type { CollectionAfterChangeHook, CollectionBeforeChangeHook } from 'payload'
 
 /**
  * Fija/forza el `responsable` del predio en el SERVIDOR:
@@ -15,4 +15,37 @@ export const fijarResponsable: CollectionBeforeChangeHook = ({ data, req }) => {
     data.responsable = user.id
   }
   return data
+}
+
+const idOf = (v: unknown): string | null =>
+  v == null ? null : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v)
+
+/**
+ * HU-12.2 / 09-modelo §5: al CAMBIAR RESPONSABLE, el historial de eventos
+ * PERMANECE EN EL PREDIO — es decir, sigue al predio, no al usuario anterior.
+ * Como `eventos.responsable` está denormalizado (base del filtro de acceso del
+ * UE), aquí se sincroniza en bloque: el UE anterior deja de leer esos eventos
+ * y el nuevo empieza a leerlos.
+ */
+export const sincronizarResponsableEventos: CollectionAfterChangeHook = async ({
+  doc,
+  previousDoc,
+  operation,
+  req,
+}) => {
+  if (operation !== 'update') return doc
+  const nuevo = idOf(doc.responsable)
+  const anterior = idOf(previousDoc?.responsable)
+  if (!nuevo || nuevo === anterior) return doc
+
+  // `req` propaga la MISMA transacción del update del predio: los hooks de
+  // Eventos (que releen el predio) ven el responsable NUEVO, no el stale.
+  await req.payload.update({
+    collection: 'eventos',
+    where: { predio: { equals: doc.id } },
+    data: { responsable: nuevo },
+    overrideAccess: true,
+    req,
+  })
+  return doc
 }

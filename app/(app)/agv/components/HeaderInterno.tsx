@@ -13,7 +13,8 @@ export function HeaderInterno({
   nombre,
   esAdmin,
 }: {
-  activo: 'inicio' | 'usuarios'
+  /** Pestaña resaltada; omitir en vistas de detalle (ninguna activa). */
+  activo?: 'inicio' | 'usuarios'
   nombre: string
   esAdmin: boolean
 }) {
