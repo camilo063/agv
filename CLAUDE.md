@@ -116,7 +116,7 @@ una sola app Next.js · sin NestJS · recuperación de contraseña **manual** po
 **D-4/DF-4**: catálogo canónico sembrado (`scripts/seed.ts`), Carbones = 6 meses ·
 **D-6**: correo = **Resend** (`RESEND_API_KEY`; sin key → consola dev) ·
 **D-9**: tipografía = **Baloo 2** (libre, next/font) — Arial Rounded solo si el cliente la licencia ·
-**D-10**: Figma canónico = `AGV - Desing` (`PqS9akeg8ag8hSanNEp3Ue`, el de los prototipos) ·
+**D-10**: Figma canónico de trabajo = `AGV - Desing (Copy)` (`8XgEF5GpT58wzvqz668Q8F`, con acceso MCP; Design System `0:1`, UE `41:1092`, Interno `41:1093`; flujos `u1g4aS1w0fUczg9h4lWLCc`) ·
 **DF-7**: contacto de recuperación **administrable** (global `configuracion` del CMS) ·
 **DF-8**: email (identificador) editable **solo por UAGV**.
 

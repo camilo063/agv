@@ -69,7 +69,7 @@ pnpm dev
 > por rol/zona lo aplica el servidor). La UI nativa de Payload queda en `/cms` como
 > back-office técnico (catálogo, zonas, plantillas de correo) exclusivo de UAGV
 > (`access.admin` en Users). Figma canónico (D-10 cerrado): `AGV - Desing`
-> (`PqS9akeg8ag8hSanNEp3Ue`), páginas `41:1092` (UE) y `41:1093` (interno).
+> (`8XgEF5GpT58wzvqz668Q8F` — Copy con acceso MCP), páginas `41:1092` (UE) y `41:1093` (interno).
 
 > Las **migraciones** las gestiona Payload (Drizzle). En dev, Payload sincroniza el schema
 > automáticamente (`push`). Para stage/prd se generan migraciones versionadas
@@ -206,7 +206,7 @@ hay diff) → `build`. Secrets nunca en el repo.
 | **D-6** | ✅ CERRADA | **Resend** (`lib/email.ts`, activado por `RESEND_API_KEY`; sin key → consola dev). |
 | **D-8** | Abierta | Costo de infra + garantía (comercial). |
 | **D-9** | ✅ CERRADA | **Baloo 2** (libre, self-hosted vía next/font). Arial Rounded solo si se licencia. |
-| **D-10** | ✅ CERRADA | Figma canónico = `AGV - Desing` (`PqS9akeg8ag8hSanNEp3Ue`). |
+| **D-10** | ✅ CERRADA | Figma canónico de trabajo = `AGV - Desing (Copy)` (`8XgEF5GpT58wzvqz668Q8F`, acceso MCP OK). Flujos: `u1g4aS1w0fUczg9h4lWLCc`. |
 | **DF-7** | ✅ CERRADA | Contacto de recuperación **administrable**: global `configuracion` (CMS) → se muestra en ambos logins. |
 | **DF-8** | ✅ CERRADA | Email (identificador) editable **solo por UAGV** (hook `validarPerfil`). |
 
