@@ -17,6 +17,7 @@ import { TiposExplotacion } from './collections/TiposExplotacion'
 import { Media } from './collections/Media'
 
 import { actualizarEventoEndpoint } from './endpoints/actualizarEvento'
+import { tablaPrediosCsv } from './endpoints/adminPredios'
 import { adminUsuariosEndpoints } from './endpoints/adminUsuarios'
 import { recordatoriosEndpoints } from './endpoints/recordatorios'
 import { registroEndpoints } from './endpoints/registro'
@@ -58,6 +59,7 @@ export default buildConfig({
   ],
   endpoints: [
     actualizarEventoEndpoint,
+    tablaPrediosCsv,
     ...adminUsuariosEndpoints,
     ...recordatoriosEndpoints,
     ...registroEndpoints,
