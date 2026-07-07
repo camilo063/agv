@@ -168,6 +168,11 @@ export interface User {
    */
   activo?: boolean | null;
   /**
+   * Marcado al abrir el enlace del correo de verificación.
+   */
+  emailVerificado?: boolean | null;
+  tokenVerificacion?: string | null;
+  /**
    * Capturado en login (HU-1.2): SO, navegador, ubicación aprox.
    */
   dispositivo?: {
@@ -587,6 +592,8 @@ export interface UsersSelect<T extends boolean = true> {
   cargo?: T;
   zonas?: T;
   activo?: T;
+  emailVerificado?: T;
+  tokenVerificacion?: T;
   dispositivo?:
     | T
     | {

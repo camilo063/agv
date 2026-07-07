@@ -18,9 +18,14 @@ export const dynamic = 'force-dynamic'
    - Sección 2 "Mis predios": tarjetas con el estado de los tipos de evento.
    Datos vía Payload con overrideAccess:false + user → solo lo propio; los estados
    se derivan en servidor (lib/estadoEventos, umbral D-1). */
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ bienvenida?: string }>
+}) {
   const { payload, user } = await getCurrentUser()
   if (!user) redirect('/login')
+  const { bienvenida } = await searchParams
 
   const scoped = { overrideAccess: false as const, user }
   const [{ docs: predios }, { docs: tipos }, { docs: eventos }] = await Promise.all([
@@ -90,6 +95,13 @@ export default async function DashboardPage() {
           Mi cuenta
         </Link>
       </header>
+
+      {bienvenida === '1' && (
+        <p className="mb-6 rounded-lg bg-success-bg px-3 py-2 text-center text-sm font-bold text-success-text">
+          {/* HU-01 criterio 4: bienvenida tras registro. También se envió el correo de verificación. */}
+          ¡Bienvenido! Tu cuenta fue creada. Te enviamos un correo para verificarla.
+        </p>
+      )}
 
       {urgentes.length > 0 && (
         <section className="mb-8">

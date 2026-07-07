@@ -82,6 +82,22 @@ export const Users: CollectionConfig = {
       admin: { description: 'Desactivar impide login pero conserva el historial.' },
     },
     {
+      // HU-01 (criterio 3): correo de verificación. NO bloquea el login (el
+      // criterio 4 exige login automático tras registro) — es verificación de
+      // propiedad del email, gestionada por endpoints/registro.ts.
+      name: 'emailVerificado',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { readOnly: true, description: 'Marcado al abrir el enlace del correo de verificación.' },
+    },
+    {
+      name: 'tokenVerificacion',
+      type: 'text',
+      hidden: true,
+      // Nunca legible vía API (solo lo usa el servidor).
+      access: { read: () => false },
+    },
+    {
       name: 'dispositivo',
       type: 'group',
       admin: {
