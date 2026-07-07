@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
+import { detectarDispositivo } from '../../../lib/dispositivo'
 import {
   esEmailValido,
   esPasswordValida,
@@ -71,11 +72,16 @@ export function RegistroForm() {
         else setGeneral('No se pudo completar el registro. Intenta de nuevo.')
         return
       }
-      // Criterio 4: login automático y redirección al Dashboard con bienvenida.
-      const login = await fetch('/api/users/login', {
+      // Criterio 4: login automático (mismo endpoint de sesión única, con
+      // captura de dispositivo HU-1.2; usuario nuevo → sin sesión previa).
+      const login = await fetch('/api/sesion/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: f.email.trim().toLowerCase(), password: f.password }),
+        body: JSON.stringify({
+          email: f.email.trim().toLowerCase(),
+          password: f.password,
+          dispositivo: detectarDispositivo(),
+        }),
       })
       router.push(login.ok ? '/dashboard?bienvenida=1' : '/login')
     } catch {

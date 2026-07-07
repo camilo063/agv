@@ -1,3 +1,4 @@
+import { APIError } from 'payload'
 import type { CollectionConfig } from 'payload'
 import { soloAdmin, soloAdminField } from '../access/soloAdmin'
 
@@ -11,7 +12,19 @@ export const Users: CollectionConfig = {
   auth: {
     // UE: reseteo de contraseña MANUAL por admin (decisión cerrada, HU-1.3).
     // Sin flujo automático de recuperación en el MVP.
-    // TODO(HU-1.4): sesión única (invalidar token anterior al confirmar nuevo dispositivo).
+    // Sesión única del UE (HU-1.4): endpoints/sesion.ts (POST /api/sesion/login).
+  },
+  hooks: {
+    beforeLogin: [
+      // HU-11.3 / 02-reglas §6: usuario desactivado NO inicia sesión (aplica a
+      // TODOS los logins: front UE, panel interno y back-office /cms).
+      ({ user }) => {
+        if ((user as { activo?: boolean }).activo === false) {
+          throw new APIError('Tu cuenta está desactivada. Contacta a AGV.', 403)
+        }
+        return user
+      },
+    ],
   },
   admin: {
     useAsTitle: 'nombre',

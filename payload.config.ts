@@ -19,6 +19,7 @@ import { Media } from './collections/Media'
 import { actualizarEventoEndpoint } from './endpoints/actualizarEvento'
 import { recordatoriosEndpoints } from './endpoints/recordatorios'
 import { registroEndpoints } from './endpoints/registro'
+import { sesionLoginEndpoint } from './endpoints/sesion'
 import { recordatoriosTask } from './jobs/recordatorios'
 import { getEmailAdapter } from './lib/email'
 import { storagePlugins } from './lib/storage'
@@ -54,7 +55,12 @@ export default buildConfig({
     TiposExplotacion,
     Media,
   ],
-  endpoints: [actualizarEventoEndpoint, ...recordatoriosEndpoints, ...registroEndpoints],
+  endpoints: [
+    actualizarEventoEndpoint,
+    ...recordatoriosEndpoints,
+    ...registroEndpoints,
+    sesionLoginEndpoint,
+  ],
   // Recordatorios HU-09 via cola de jobs de Payload (disparo agnóstico — ver endpoints/).
   jobs: { tasks: [recordatoriosTask] },
   editor: lexicalEditor(),
