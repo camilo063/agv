@@ -20,7 +20,8 @@ export default async function ActualizarEventoPage({
 }) {
   const { id } = await params
   const { payload, user } = await getCurrentUser()
-  if (!user) redirect('/login')
+  // Entrada desde el link del correo (HU-09): sin sesión → login y de vuelta aquí.
+  if (!user) redirect(`/login?next=${encodeURIComponent(`/eventos/${id}/actualizar`)}`)
 
   let evento: Evento
   try {

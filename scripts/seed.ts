@@ -141,8 +141,42 @@ async function main() {
     })
   }
 
+  // Plantillas de correo de HU-09 (asuntos definidos por la HU; cuerpo editable
+  // vía CMS sin despliegue). Variables: {{nombre}} {{predio}} {{tipo}} {{producto}}
+  // {{fecha}} {{enlace}}. TODO(copy): texto definitivo del cuerpo con el cliente.
+  payload.logger.info('Seed: plantillas de correo (HU-09)…')
+  const PLANTILLAS = [
+    {
+      clave: 'recordatorio-3-dias',
+      nombre: 'Recordatorio — 3 días antes',
+      asunto: 'Tienes un evento sanitario próximo',
+      cuerpo:
+        'Hola {{nombre}}:\n\nTienes un evento sanitario próximo en tu predio {{predio}}:\n- Tipo: {{tipo}}\n- Fecha: {{fecha}}\n- Producto: {{producto}}\n\nActualiza tu evento aquí: {{enlace}}\n\n— AGV Salud Animal',
+    },
+    {
+      clave: 'recordatorio-0-dias',
+      nombre: 'Recordatorio — día exacto',
+      asunto: 'Hoy tienes un evento sanitario',
+      cuerpo:
+        'Hola {{nombre}}:\n\nHoy tienes un evento sanitario en tu predio {{predio}}:\n- Tipo: {{tipo}}\n- Producto: {{producto}}\n\nActualiza tu evento aquí: {{enlace}}\n\n— AGV Salud Animal',
+    },
+  ]
+  for (const p of PLANTILLAS) {
+    const found = await payload.find({
+      collection: 'email-templates',
+      where: { clave: { equals: p.clave } },
+      limit: 1,
+      depth: 0,
+    })
+    if (found.docs.length > 0) {
+      await payload.update({ collection: 'email-templates', id: found.docs[0].id, data: p, req })
+    } else {
+      await payload.create({ collection: 'email-templates', data: p, req })
+    }
+  }
+
   payload.logger.info(
-    `Seed OK: ${ZONAS.length} zonas, ${TIPOS.length} tipos, ${CATEGORIAS.length} categorías, ${PRODUCTOS.length} productos.`,
+    `Seed OK: ${ZONAS.length} zonas, ${TIPOS.length} tipos, ${CATEGORIAS.length} categorías, ${PRODUCTOS.length} productos, ${PLANTILLAS.length} plantillas.`,
   )
 }
 

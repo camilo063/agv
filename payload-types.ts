@@ -290,6 +290,13 @@ export interface Evento {
    * false si "Otra marca" o producto sin recordatorio.
    */
   recordatorioProgramado?: boolean | null;
+  /**
+   * Fechas de envío de los correos de HU-09.
+   */
+  recordatorios?: {
+    enviado3dias?: string | null;
+    enviado0dias?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -661,6 +668,12 @@ export interface EventosSelect<T extends boolean = true> {
       };
   proximaFecha?: T;
   recordatorioProgramado?: T;
+  recordatorios?:
+    | T
+    | {
+        enviado3dias?: T;
+        enviado0dias?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

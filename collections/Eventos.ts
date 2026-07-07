@@ -101,5 +101,18 @@ export const Eventos: CollectionConfig = {
       defaultValue: false,
       admin: { readOnly: true, description: 'false si "Otra marca" o producto sin recordatorio.' },
     },
+    {
+      // Control de envíos HU-09 (idempotencia): si el cron corre dos veces el
+      // mismo día, no se reenvía el mismo umbral. Solo lo escribe el servidor
+      // (lib/recordatorios.ts con overrideAccess). Umbrales = D-1 cerrado (3 y 0).
+      name: 'recordatorios',
+      type: 'group',
+      admin: { readOnly: true, description: 'Fechas de envío de los correos de HU-09.' },
+      access: { update: () => false },
+      fields: [
+        { name: 'enviado3dias', type: 'date' },
+        { name: 'enviado0dias', type: 'date' },
+      ],
+    },
   ],
 }

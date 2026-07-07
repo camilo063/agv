@@ -11,9 +11,11 @@ import { LoginForm } from './LoginForm'
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ verificado?: string }>
+  searchParams: Promise<{ verificado?: string; next?: string }>
 }) {
-  const { verificado } = await searchParams
+  // `next`: destino post-login (p. ej. el link "Actualizar evento" del correo de
+  // recordatorio, HU-09: "si no tiene sesión, pasa por login y luego se redirige").
+  const { verificado, next } = await searchParams
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col justify-center gap-8 px-6 py-10">
@@ -28,7 +30,7 @@ export default async function LoginPage({
         </p>
       )}
 
-      <LoginForm />
+      <LoginForm next={next} />
 
       <div className="flex flex-col gap-2 text-center text-sm text-text-secondary">
         {/* TODO(HU-1.3 / DF-7): dato de contacto del asesor AGV pendiente del cliente. */}

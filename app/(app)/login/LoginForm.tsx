@@ -11,8 +11,10 @@ import { Button } from '../components/Button'
    responde 409 y aquí se pregunta "¿Deseas cerrarla y continuar aquí?" (flujo
    UE-Sesión activa): No → permanece en login; Sí → reintenta con
    confirmarReemplazo=true (el servidor invalida el token anterior). */
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const router = useRouter()
+  // Solo rutas internas (evita open-redirect con URLs externas en ?next=).
+  const destino = next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -44,7 +46,7 @@ export function LoginForm() {
         setSesionPrevia(null)
         return
       }
-      router.push('/dashboard')
+      router.push(destino)
     } catch {
       setError('No fue posible iniciar sesión. Intenta de nuevo.')
     } finally {
