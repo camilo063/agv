@@ -1,23 +1,30 @@
+import { resendAdapter } from '@payloadcms/email-resend'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import type { EmailAdapter } from 'payload'
 
 /**
- * Adaptador de correo seleccionado por ENTORNO.
+ * Adaptador de correo por ENTORNO — D-6 CERRADA: el transporte elegido es
+ * RESEND (se activa con RESEND_API_KEY). Prioridad:
+ *   1) RESEND_API_KEY  → Resend (producción/stage).
+ *   2) SMTP_HOST       → nodemailer/SMTP (alternativa operativa, p. ej. SES).
+ *   3) nada            → modo consola (dev): Payload loguea los correos.
  *
- * TODO(D-6): elegir AWS SES vs Resend según entregabilidad/costo. NO decidido.
- * Mientras D-6 esté abierto y no haya credenciales, se devuelve `undefined`:
- * Payload registra los correos en consola (modo dev). Esto NO es un default de
- * producción, es la ausencia explícita de adaptador hasta cerrar D-6.
- *
- * Cuando se cierre D-6, activar una de las dos ramas (ambas por env, sin tocar
- * código de negocio — los recordatorios golpean el mismo handler).
+ * Los recordatorios (HU-09) y correos de registro/credenciales usan
+ * payload.sendEmail — el transporte es transparente para la lógica.
  */
-// nodemailerAdapter es async (devuelve Promise<EmailAdapter>); el campo `email` del
-// config de Payload acepta EmailAdapter | Promise<EmailAdapter>.
 export function getEmailAdapter(): EmailAdapter | Promise<EmailAdapter> | undefined {
   const from = process.env.EMAIL_FROM ?? 'AGV Salud Animal <no-reply@example.com>'
 
-  // Opción SES vía SMTP (nodemailer). Activar definiendo SMTP_HOST.
+  // D-6: Resend.
+  if (process.env.RESEND_API_KEY) {
+    return resendAdapter({
+      apiKey: process.env.RESEND_API_KEY,
+      defaultFromAddress: from.match(/<([^>]+)>/)?.[1] ?? from,
+      defaultFromName: 'AGV Salud Animal',
+    })
+  }
+
+  // Alternativa SMTP (nodemailer) por si se requiere SES u otro relay.
   if (process.env.SMTP_HOST) {
     return nodemailerAdapter({
       defaultFromName: 'AGV Salud Animal',
@@ -33,15 +40,6 @@ export function getEmailAdapter(): EmailAdapter | Promise<EmailAdapter> | undefi
     })
   }
 
-  // Opción Resend: instalar `@payloadcms/email-resend` y descomentar.
-  // if (process.env.RESEND_API_KEY) {
-  //   return resendAdapter({
-  //     defaultFromAddress: from,
-  //     defaultFromName: 'AGV Salud Animal',
-  //     apiKey: process.env.RESEND_API_KEY,
-  //   })
-  // }
-
-  // Sin adaptador: Payload usa modo consola (dev). TODO(D-6).
+  // Sin adaptador: Payload usa modo consola (dev).
   return undefined
 }

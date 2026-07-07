@@ -6,9 +6,10 @@ const nextConfig = {
   // `turbopack: {}` (vacío) silencia el warning de Turbopack en Next 16.
   turbopack: {},
 
-  // Imagen de producción portable (mismo contenedor en Vercel hoy / ECS mañana — §7).
-  // Genera `.next/standalone` para un runtime mínimo (ver Dockerfile).
-  output: 'standalone',
+  // Imagen de producción portable para Docker/ECS (§7): `.next/standalone`.
+  // En VERCEL debe OMITIRSE — interfiere con el empaquetado de funciones
+  // (crash en cold start). Vercel gestiona su propio output.
+  ...(process.env.VERCEL ? {} : { output: 'standalone' }),
 
   // Separación de bundle: el grupo (payload) queda aislado del bundle público
   // por route groups (app/(payload) vs app/(app)). No hace falta config extra aquí.

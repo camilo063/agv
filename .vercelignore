@@ -1,0 +1,9 @@
+# NUNCA subir secretos/artefactos locales al deploy del CLI.
+# (El runtime de Next carga .env si llega al bundle y pisaría los env de Vercel.)
+.env
+.env.*
+!.env.example
+uploads
+docker-compose.yml
+Dockerfile
+docs

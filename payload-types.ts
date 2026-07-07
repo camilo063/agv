@@ -105,8 +105,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    configuracion: Configuracion;
+  };
+  globalsSelect: {
+    configuracion: ConfiguracionSelect<false> | ConfiguracionSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -833,6 +837,43 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "configuracion".
+ */
+export interface Configuracion {
+  id: string;
+  /**
+   * Se muestra al usuario en "¿Olvidaste tu contraseña?" (la recuperación es manual por diseño).
+   */
+  recuperacion?: {
+    /**
+     * Teléfono/WhatsApp del asesor AGV.
+     */
+    telefono?: string | null;
+    /**
+     * Correo de contacto (opcional).
+     */
+    correo?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "configuracion_select".
+ */
+export interface ConfiguracionSelect<T extends boolean = true> {
+  recuperacion?:
+    | T
+    | {
+        telefono?: T;
+        correo?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

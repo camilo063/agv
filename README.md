@@ -3,6 +3,13 @@
 PWA de control sanitario del hato ganadero. **Una sola app Next.js (App Router)** que aloja
 el admin (**Payload 3.x**) y el front del ganadero, en un mismo repo y deploy.
 
+> 🚀 **Producción (Vercel + Neon):** https://agv-gray.vercel.app
+> `/login` (ganadero) · `/agv/login` (interno) · `/cms` (back-office, solo UAGV).
+>
+> ✅ **Estado: TODOS los flujos del board (`docs/07-flujos.md`) implementados y verificados
+> E2E** — A (11 flujos UE) · B (6 UAGV) · C (2 URT). Pendiente: 2º entregable de diseño
+> (ajuste visual de forms internos), RESEND_API_KEY del cliente y pulido (Serwist, rate-limit).
+
 - **Cliente:** AGV Salud Animal · **Proveedor:** Nivelics SAS · **Idioma:** español (Colombia).
 - **Fuente de verdad contractual:** `docs/00`–`docs/09` + `theme/design-tokens.css`. Donde el
   código y los docs difieran, **gobiernan los docs** (y las HU sobre todo lo demás).
@@ -189,16 +196,36 @@ hay diff) → `build`. Secrets nunca en el repo.
 
 ## TODO abiertos (NO inventar valores — `docs/05-decisiones-abiertas.md`)
 
-### Decisiones abiertas (D-N) tocadas en el código
-| ID | Estado | Dónde / qué |
+### Decisiones (D-N / DF-N)
+| ID | Estado | Qué quedó |
 |---|---|---|
 | **D-1** | ✅ CERRADA | "Próximo" ≤5 días; emails 3 y 0 (`AGV_DIAS_PROXIMO=5`, `AGV_DIAS_EMAIL=3,0`). |
-| **D-2** | Abierta | `Predios.ts`, `TiposExplotacion.ts` — mapeo categorías→explotación (inferencia). Sin él, campo nulo. |
-| **D-3** | Abierta | `TiposEvento.ts`, `Categorias.ts`, `TiposExplotacion.ts` — bloquear borrado si en uso. |
+| **D-2** | Abierta | Mapeo categorías→explotación (inferencia). Sin él, campo nulo. |
+| **D-3** | Abierta | Bloquear borrado de entidades de dominio si están en uso. |
 | **D-4** | ✅ CERRADA | Carbones = 6 meses; catálogo canónico sembrado (`scripts/seed.ts`). |
-| **D-6** | Abierta | `lib/email.ts`, `.env.example` — SES vs Resend. |
-| **D-9** | Abierta | `theme/design-tokens.css` — tipografía (licenciar o alternativa libre). |
+| **D-6** | ✅ CERRADA | **Resend** (`lib/email.ts`, activado por `RESEND_API_KEY`; sin key → consola dev). |
+| **D-8** | Abierta | Costo de infra + garantía (comercial). |
+| **D-9** | ✅ CERRADA | **Baloo 2** (libre, self-hosted vía next/font). Arial Rounded solo si se licencia. |
 | **D-10** | ✅ CERRADA | Figma canónico = `AGV - Desing` (`PqS9akeg8ag8hSanNEp3Ue`). |
+| **DF-7** | ✅ CERRADA | Contacto de recuperación **administrable**: global `configuracion` (CMS) → se muestra en ambos logins. |
+| **DF-8** | ✅ CERRADA | Email (identificador) editable **solo por UAGV** (hook `validarPerfil`). |
+
+### Deploy (Vercel + Neon)
+- **Proyecto Vercel:** `agv` (scope camilo063) · **Prod:** https://agv-gray.vercel.app
+- **DB:** Neon vía Vercel Marketplace (`DATABASE_URL` pooled inyectada; el config
+  hace fallback `DATABASE_URI || DATABASE_URL`).
+- **Migraciones:** `migrations/` versionadas; el build de Vercel corre
+  `pnpm ci:build` = `payload migrate` (conexión **UNPOOLED**) + `next build`
+  (`vercel.json → buildCommand`). En dev local, Payload sincroniza con push.
+- **`output: standalone` solo fuera de Vercel** (rompe el runtime serverless;
+  se conserva para Docker/ECS).
+- **`.vercelignore`**: jamás subir `.env*` al deploy del CLI (Next lo cargaría
+  en runtime pisando los env de Vercel — causó el primer 500 de prod).
+- **Cron:** `vercel.json` → GET `/api/recordatorios/run` diario (Bearer `CRON_SECRET`).
+- **Envs pendientes del cliente:** `RESEND_API_KEY` + `EMAIL_FROM` (dominio
+  verificado en Resend) para activar correos reales.
+- **Primer admin:** crear en https://agv-gray.vercel.app/cms (pantalla
+  create-first-user de Payload).
 
 ### Discrepancias board↔HU (DF-N — `docs/07-flujos.md`)
 - **DF-1** registro: etiquetas Sí/No invertidas (email existente → error). → lógica HU-01 al implementar registro.

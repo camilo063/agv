@@ -9,7 +9,7 @@ import { Button } from '../../components/Button'
    valida el ROL y redirige: UAGV/URT → /agv (dashboard interno); UE → /dashboard
    (su front). "¿Olvidó su contraseña?" → mensaje informativo (HU-10.1, sin flujo
    automático: el admin restablece manualmente). */
-export function LoginFormInterno() {
+export function LoginFormInterno({ contacto }: { contacto?: string }) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -94,8 +94,10 @@ export function LoginFormInterno() {
 
       {olvido && (
         <p className="rounded-lg bg-info-bg px-3 py-2 text-center text-sm text-info-text">
-          {/* HU-10.1: sin flujo automático; restablecimiento manual. */}
+          {/* HU-10.1: sin flujo automático; restablecimiento manual.
+              DF-7: el dato de contacto viene del global Configuración (CMS). */}
           Para restablecer tu contraseña contacta al administrador de AGV.
+          {contacto && <span className="font-bold"> {contacto}</span>}
         </p>
       )}
 

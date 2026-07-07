@@ -1,12 +1,22 @@
 import React from 'react'
 
+import { getPayloadClient } from '../../../../lib/auth'
 import { LoginFormInterno } from './LoginFormInterno'
+
+export const dynamic = 'force-dynamic'
 
 /* Login del personal interno (HU-10) — /agv/login. Diseño split-screen del Figma
    (Usuario Interno - 1, nodo 46:2491): panel verde de marca a la izquierda,
    formulario a la derecha. Desktop-first (el interno es panel de gestión).
    TODO(asset): exportar el logo/curva AGV del Figma; por ahora wordmark tipográfico. */
-export default function LoginInternoPage() {
+export default async function LoginInternoPage() {
+  // DF-7: contacto administrable (global del CMS) para "¿Olvidó su contraseña?".
+  const payload = await getPayloadClient()
+  const config = await payload.findGlobal({ slug: 'configuracion' }).catch(() => null)
+  const contacto = [config?.recuperacion?.telefono, config?.recuperacion?.correo]
+    .filter(Boolean)
+    .join(' · ')
+
   return (
     <main className="flex min-h-dvh">
       {/* Panel de marca (Figma: verde brand con curva del logo en trazo claro). */}
@@ -23,7 +33,7 @@ export default function LoginInternoPage() {
             Los campos con * son obligatorios
           </p>
 
-          <LoginFormInterno />
+          <LoginFormInterno contacto={contacto} />
         </div>
       </section>
     </main>

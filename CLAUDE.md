@@ -108,15 +108,17 @@ access/           # control de acceso por rol/zona
 |---|---|
 | D-2 | Tabla de mapeo `categorías de animales → tipo de explotación` (inferencia). |
 | D-3 | Qué entidades de dominio son editables vs. protegidas con soft-delete. |
-| D-6 | Adaptador de correo: AWS SES vs Resend. |
 | D-8 | Costo de infra mensual + alcance de garantía. |
-| D-9 | Tipografía: "Arial Rounded" no es web-safe — licenciar o elegir alternativa libre. |
 
 **Cerradas (no reabrir):** identificador = email · offline excluido · catálogo administrable (CRUD) ·
 una sola app Next.js · sin NestJS · recuperación de contraseña **manual** por diseño ·
 **D-1**: "Próximo" ≤5 días, emails a 3 y 0 días (`AGV_DIAS_PROXIMO`, `AGV_DIAS_EMAIL`) ·
 **D-4/DF-4**: catálogo canónico sembrado (`scripts/seed.ts`), Carbones = 6 meses ·
-**D-10**: Figma canónico = `AGV - Desing` (`PqS9akeg8ag8hSanNEp3Ue`, el de los prototipos).
+**D-6**: correo = **Resend** (`RESEND_API_KEY`; sin key → consola dev) ·
+**D-9**: tipografía = **Baloo 2** (libre, next/font) — Arial Rounded solo si el cliente la licencia ·
+**D-10**: Figma canónico = `AGV - Desing` (`PqS9akeg8ag8hSanNEp3Ue`, el de los prototipos) ·
+**DF-7**: contacto de recuperación **administrable** (global `configuracion` del CMS) ·
+**DF-8**: email (identificador) editable **solo por UAGV**.
 
 **Discrepancias board↔HU pendientes:** DF-1…DF-8 en `07-flujos.md` (etiquetas Sí/No invertidas,
 WhatsApp fuera de alcance, nombres de catálogo divergentes, etc.).

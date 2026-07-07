@@ -38,11 +38,12 @@
   --color-info-text:       #079BFF;
 
   /* ---- Tipografía -------------------------------------------------------- */
-  /* ⚠️ D-9: "Arial Rounded" es propietaria (Monotype) y NO web-safe.
-     NO se puede servir vía @font-face sin licencia. Fallback definido abajo;
-     reemplazar por la decisión final (licenciar o alternativa libre). */
-  --font-family-base: "Arial Rounded MT Bold", "Baloo 2", "Nunito",
-                      system-ui, -apple-system, sans-serif;
+  /* D-9 CERRADA: alternativa libre = Baloo 2 (self-hosted vía next/font;
+     --font-baloo la inyecta app/(app)/layout.tsx). "Arial Rounded MT Bold"
+     (la del Figma) es propietaria de Monotype: si el cliente la licencia,
+     anteponerla aquí y servirla por @font-face. */
+  --font-family-base: var(--font-baloo, "Baloo 2"), "Arial Rounded MT Bold",
+                      "Nunito", system-ui, -apple-system, sans-serif;
 
   --font-size-h1:          48px; /* Bold    — Títulos principales (techo desktop) */
   --font-size-h2:          32px; /* Bold    — Subtítulos, secciones               */

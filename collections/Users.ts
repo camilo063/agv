@@ -5,9 +5,8 @@ import { esTelefonoValido, validarDocumento } from '../lib/validaciones'
 
 /**
  * Validaciones de perfil (HU-02) y regla DF-8 — EN SERVIDOR:
- * - Email (identificador de login) NO editable salvo por UAGV.
- *   TODO(DF-8): editabilidad del email por el UE está "pendiente" en el board;
- *   se implementa lo conservador (inmutable) hasta decisión del cliente.
+ * - DF-8 CERRADA: el email (identificador de login) es editable SOLO por
+ *   administradores (UAGV). El UE no puede cambiarlo.
  * - Teléfono: 10 dígitos si se envía. Documento: CC 6–10 díg. / NIT con DV.
  */
 const validarPerfil: CollectionBeforeValidateHook = ({ data, originalDoc, operation, req }) => {

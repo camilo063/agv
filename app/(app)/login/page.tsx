@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import React from 'react'
 
+import { getPayloadClient } from '../../../lib/auth'
 import { LoginForm } from './LoginForm'
+
+export const dynamic = 'force-dynamic'
 
 /* UE-Login (/login, acceso vía QR). Ramas del flujo:
    - "¿Olvidaste tu contraseña?" → mensaje informativo (HU-1.3; dato de contacto
@@ -16,6 +19,13 @@ export default async function LoginPage({
   // `next`: destino post-login (p. ej. el link "Actualizar evento" del correo de
   // recordatorio, HU-09: "si no tiene sesión, pasa por login y luego se redirige").
   const { verificado, next } = await searchParams
+
+  // DF-7 CERRADA: contacto del asesor administrable desde el CMS (global).
+  const payload = await getPayloadClient()
+  const config = await payload.findGlobal({ slug: 'configuracion' }).catch(() => null)
+  const contacto = [config?.recuperacion?.telefono, config?.recuperacion?.correo]
+    .filter(Boolean)
+    .join(' · ')
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col justify-center gap-8 px-6 py-10">
@@ -33,8 +43,10 @@ export default async function LoginPage({
       <LoginForm next={next} />
 
       <div className="flex flex-col gap-2 text-center text-sm text-text-secondary">
-        {/* TODO(HU-1.3 / DF-7): dato de contacto del asesor AGV pendiente del cliente. */}
-        <p>¿Olvidaste tu contraseña? Contacta a tu asesor AGV.</p>
+        <p>
+          ¿Olvidaste tu contraseña? Contacta a tu asesor AGV.
+          {contacto && <span className="font-bold text-text-primary"> {contacto}</span>}
+        </p>
         <p>
           ¿No tienes cuenta?{' '}
           <Link href="/registro" className="font-bold text-brand-primary">

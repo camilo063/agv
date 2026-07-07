@@ -7,8 +7,8 @@ import { esTelefonoValido, validarDocumento } from '../../../lib/validaciones'
 import { Button } from '../components/Button'
 
 /* Zona de usuario (HU-02): formulario precargado — Nombre*, Teléfono*, Documento
-   (CC/NIT). El email (identificador) se muestra pero NO es editable — TODO(DF-8):
-   pendiente decisión del cliente; el servidor también lo bloquea (validarPerfil).
+   (CC/NIT). DF-8 CERRADA: el email (identificador) solo lo editan los admins;
+   aquí se muestra deshabilitado y el servidor lo bloquea (validarPerfil).
    Guardar → PATCH /api/users/:id (access: UE solo sobre sí mismo) →
    "Datos actualizados correctamente" en la misma pantalla. */
 
@@ -103,7 +103,7 @@ export function PerfilForm({ initial }: { initial: PerfilInitial }) {
       <label className={labelCls}>
         <span className={labelSpan}>Email</span>
         <input className={`${inputCls} bg-neutral-bg text-neutral-text`} value={initial.email} disabled />
-        {/* TODO(DF-8): editabilidad del email pendiente de decisión del cliente. */}
+        {/* DF-8 CERRADA: el email solo lo editan los administradores. */}
         <span className="text-xs text-text-secondary">
           El correo es tu identificador y no se puede modificar. Contacta a AGV si lo necesitas.
         </span>
