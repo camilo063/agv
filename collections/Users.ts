@@ -1,6 +1,41 @@
 import { APIError } from 'payload'
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 import { soloAdmin, soloAdminField } from '../access/soloAdmin'
+import { esTelefonoValido, validarDocumento } from '../lib/validaciones'
+
+/**
+ * Validaciones de perfil (HU-02) y regla DF-8 — EN SERVIDOR:
+ * - Email (identificador de login) NO editable salvo por UAGV.
+ *   TODO(DF-8): editabilidad del email por el UE está "pendiente" en el board;
+ *   se implementa lo conservador (inmutable) hasta decisión del cliente.
+ * - Teléfono: 10 dígitos si se envía. Documento: CC 6–10 díg. / NIT con DV.
+ */
+const validarPerfil: CollectionBeforeValidateHook = ({ data, originalDoc, operation, req }) => {
+  if (!data) return data
+
+  if (
+    operation === 'update' &&
+    req.user?.role !== 'UAGV' &&
+    typeof data.email === 'string' &&
+    originalDoc?.email &&
+    data.email.toLowerCase() !== String(originalDoc.email).toLowerCase()
+  ) {
+    throw new APIError('El correo (identificador) no es editable. Contacta a AGV.', 403)
+  }
+
+  if (data.telefono != null && data.telefono !== '' && !esTelefonoValido(String(data.telefono))) {
+    throw new APIError('El teléfono debe tener 10 dígitos.', 400)
+  }
+
+  const tipo = (data.tipoDocumento ?? originalDoc?.tipoDocumento ?? null) as 'CC' | 'NIT' | null
+  const numero = (data.numeroDocumento ?? originalDoc?.numeroDocumento ?? null) as string | null
+  if (tipo && (data.tipoDocumento !== undefined || data.numeroDocumento !== undefined)) {
+    const err = validarDocumento(tipo, numero)
+    if (err) throw new APIError(err, 400)
+  }
+
+  return data
+}
 
 /**
  * Users — UAGV / URT / UE. Auth de Payload (identificador = email, decisión cerrada).
@@ -15,6 +50,7 @@ export const Users: CollectionConfig = {
     // Sesión única del UE (HU-1.4): endpoints/sesion.ts (POST /api/sesion/login).
   },
   hooks: {
+    beforeValidate: [validarPerfil],
     beforeLogin: [
       // HU-11.3 / 02-reglas §6: usuario desactivado NO inicia sesión (aplica a
       // TODOS los logins: front UE, panel interno y back-office /cms).
@@ -41,11 +77,16 @@ export const Users: CollectionConfig = {
       if (user.role === 'UAGV') return true
       return { id: { equals: user.id } }
     },
-    // TODO(HU-01): el registro público del UE (vía QR) necesitará un create público
-    // o un endpoint custom con validaciones (email único, formato, verificación).
-    // Hasta entonces, crear usuarios es solo del admin (UE creado por AGV — flujos B).
+    // Registro público del UE: SOLO vía endpoints/registro.ts (validaciones HU-01).
     create: soloAdmin,
-    update: soloAdmin,
+    // HU-02: el UE actualiza SUS datos (campos sensibles bloqueados por field
+    // access + hook validarPerfil). URT no gestiona usuarios.
+    update: ({ req: { user } }) => {
+      if (!user) return false
+      if (user.role === 'UAGV') return true
+      if (user.role === 'UE') return { id: { equals: user.id } }
+      return false
+    },
     delete: soloAdmin,
   },
   fields: [
@@ -87,12 +128,16 @@ export const Users: CollectionConfig = {
         description: 'Solo URT — base del filtro de acceso por zona (09-modelo-permisos).',
         condition: (data) => data?.role === 'URT',
       },
+      // La asignación de zona (base del RBAC) solo la gestiona un UAGV.
+      access: { create: soloAdminField, update: soloAdminField },
     },
     {
       name: 'activo',
       type: 'checkbox',
       defaultValue: true,
       admin: { description: 'Desactivar impide login pero conserva el historial.' },
+      // Un usuario no puede desactivarse/reactivarse a sí mismo (HU-11.3 = admin).
+      access: { update: soloAdminField },
     },
     {
       // HU-01 (criterio 3): correo de verificación. NO bloquea el login (el
@@ -102,13 +147,15 @@ export const Users: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
       admin: { readOnly: true, description: 'Marcado al abrir el enlace del correo de verificación.' },
+      // Solo lo marca el servidor (endpoints/registro.ts con overrideAccess).
+      access: { update: () => false },
     },
     {
       name: 'tokenVerificacion',
       type: 'text',
       hidden: true,
-      // Nunca legible vía API (solo lo usa el servidor).
-      access: { read: () => false },
+      // Nunca legible ni escribible vía API (solo lo usa el servidor).
+      access: { read: () => false, update: () => false },
     },
     {
       name: 'dispositivo',
@@ -117,6 +164,8 @@ export const Users: CollectionConfig = {
         description: 'Capturado en login (HU-1.2): SO, navegador, ubicación aprox.',
         readOnly: true,
       },
+      // Solo lo escribe el servidor (endpoints/sesion.ts con overrideAccess).
+      access: { update: () => false },
       fields: [
         { name: 'so', type: 'text' },
         { name: 'navegador', type: 'text' },

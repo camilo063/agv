@@ -4,15 +4,24 @@ import React from 'react'
 
 import { getCurrentUser } from '../../../lib/auth'
 import { LogoutButton } from './LogoutButton'
+import { PerfilForm, type PerfilInitial } from './PerfilForm'
 
 export const dynamic = 'force-dynamic'
 
-/* UE-Zona de usuario (HU-02) — esqueleto. Muestra datos de la cuenta y cierre de sesión.
-   TODO(HU-02): formulario de "Actualizar datos" (Nombre, Teléfono, Documento) con
-   validaciones. TODO(DF-8): definir si el email (identificador) es editable por el UE. */
+/* UE-Zona de usuario (HU-02) — /perfil. Formulario precargado con los datos
+   actuales + cierre de sesión con confirmación (HU-1.5, borde rojo). */
 export default async function PerfilPage() {
   const { user } = await getCurrentUser()
   if (!user) redirect('/login')
+
+  const initial: PerfilInitial = {
+    id: String(user.id),
+    nombre: user.nombre,
+    email: user.email,
+    telefono: user.telefono ?? '',
+    tipoDocumento: (user.tipoDocumento ?? '') as PerfilInitial['tipoDocumento'],
+    numeroDocumento: user.numeroDocumento ?? '',
+  }
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col gap-6 px-5 py-6">
@@ -23,12 +32,7 @@ export default async function PerfilPage() {
         </Link>
       </header>
 
-      <section className="rounded-2xl border border-border bg-white p-5">
-        <p className="text-sm text-text-secondary">Nombre</p>
-        <p className="mb-3 text-base font-bold text-text-primary">{user.nombre}</p>
-        <p className="text-sm text-text-secondary">Email</p>
-        <p className="text-base text-text-primary">{user.email}</p>
-      </section>
+      <PerfilForm initial={initial} />
 
       <LogoutButton />
     </main>
