@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { readScopePorZona } from '../access/byZona'
+import { validarEvento } from '../hooks/eventoValidaciones'
 import { recalcularProximaFecha } from '../hooks/trazabilidadEvento'
 
 /**
@@ -22,10 +23,18 @@ export const Eventos: CollectionConfig = {
   access: {
     read: readScopePorZona({ zonaField: 'predio.departamento', responsableField: 'responsable' }),
     create: ({ req: { user } }) => user?.role === 'UAGV' || user?.role === 'UE',
-    update: ({ req: { user } }) => user?.role === 'UAGV' || user?.role === 'UE',
+    // UE solo edita ("Editar" = estado Activo, HU-06) sus PROPIOS eventos.
+    update: ({ req: { user } }) => {
+      if (!user) return false
+      if (user.role === 'UAGV') return true
+      if (user.role === 'UE') return { responsable: { equals: user.id } }
+      return false
+    },
     delete: ({ req: { user } }) => user?.role === 'UAGV',
   },
   hooks: {
+    // Validaciones de negocio en servidor (Otra marca, predio propio, producto↔tipo).
+    beforeValidate: [validarEvento],
     // Recalcula proximaFecha/recordatorioProgramado desde el producto del catálogo.
     beforeChange: [recalcularProximaFecha],
   },
@@ -45,7 +54,7 @@ export const Eventos: CollectionConfig = {
         description: 'Denormalizado desde el predio para el filtro de acceso del UE.',
         readOnly: true,
       },
-      // TODO: poblar automáticamente desde predio.responsable en un hook beforeChange.
+      // Poblado automáticamente desde predio.responsable (hooks/eventoValidaciones.ts).
     },
     {
       name: 'tipoEvento',
@@ -66,7 +75,7 @@ export const Eventos: CollectionConfig = {
         description: 'Obligatorio si el producto es "Otra marca" (trazabilidad). No programa recordatorio.',
         condition: (data) => !data?.producto,
       },
-      // TODO(validación): requerir si producto está vacío (regla "Otra marca", HU-5.1).
+      // Requerido si producto está vacío — validado en servidor (hooks/eventoValidaciones.ts).
     },
     { name: 'fecha', type: 'date', required: true },
     {
