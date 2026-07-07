@@ -13,17 +13,17 @@ export const dynamic = 'force-dynamic'
 export default async function NuevoEventoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ predio?: string }>
+  searchParams: Promise<{ predio?: string; tipo?: string }>
 }) {
   const { user } = await getCurrentUser()
   if (!user) redirect('/login')
 
-  const { predio } = await searchParams
+  const { predio, tipo } = await searchParams
 
   return (
     <div className="mx-auto min-h-dvh max-w-[412px] px-5 pb-24 pt-6">
       <h1 className="mb-6 text-2xl font-bold text-text-primary">Registrar evento</h1>
-      <EventoForm predioInicial={predio} />
+      <EventoForm predioInicial={predio} tipoInicial={tipo} />
       <FootBar />
     </div>
   )

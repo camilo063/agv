@@ -46,6 +46,13 @@ export const actualizarEventoEndpoint: Endpoint = {
         { status: 400 },
       )
     }
+    // HU-07: el usuario debe ingresar nueva Fecha, Categorías y Cantidades.
+    if (!Array.isArray(categorias) || categorias.length === 0) {
+      return Response.json(
+        { error: 'Debes seleccionar al menos una categoría con su cantidad.' },
+        { status: 400 },
+      )
+    }
 
     // Registro vigente del que se hereda Predio/Tipo/Producto (no editables).
     const anterior = (await payload.findByID({

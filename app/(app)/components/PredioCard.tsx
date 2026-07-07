@@ -1,11 +1,24 @@
 import Link from 'next/link'
 import React from 'react'
 
+import type { EstadoEvento } from '../../../lib/reglas'
+import { formatoFecha } from '../../../lib/estadoEventos'
 import type { Predio, Zona, TiposExplotacion } from '../../../payload-types'
+import { Chip } from './Chip'
 
-/* Súper tarjeta de predio (HU-04). Muestra nombre, ubicación y veterinario, con
-   acceso a "Editar". La lista de eventos por tipo (con chips de estado) se añade
-   al construir el módulo de eventos. */
+/* Súper tarjeta de predio (HU-04): nombre, ubicación, veterinario y la lista de
+   tipos de evento con su ESTADO (chip) y botón dinámico según la máquina de estados:
+   Sin registro → Registrar · Activo → Editar (sobrescribe) · Próximo/Vencido →
+   Actualizar (nuevo registro). Los estados se derivan en el SERVIDOR (page). */
+
+export type EstadoFila = {
+  tipoId: string
+  tipoNombre: string
+  estado: EstadoEvento
+  eventoId?: string
+  proximaFecha?: string | null
+}
+
 function nombreZona(dep: Predio['departamento']): string {
   if (dep && typeof dep === 'object') return (dep as Zona).nombre
   return ''
@@ -16,7 +29,37 @@ function nombreExplotacion(t: Predio['tipoExplotacion']): string | null {
   return null
 }
 
-export function PredioCard({ predio }: { predio: Predio }) {
+function AccionEvento({ predioId, fila }: { predioId: string; fila: EstadoFila }) {
+  const cls = 'shrink-0 rounded-lg px-3 py-1.5 text-sm font-bold'
+  if (fila.estado === 'sin_registro') {
+    return (
+      <Link
+        href={`/eventos/nuevo?predio=${predioId}&tipo=${fila.tipoId}`}
+        className={`${cls} bg-neutral-bg text-neutral-text`}
+      >
+        Registrar
+      </Link>
+    )
+  }
+  if (fila.estado === 'activo') {
+    return (
+      <Link href={`/eventos/${fila.eventoId}/editar`} className={`${cls} bg-brand-light text-brand-primary`}>
+        Editar
+      </Link>
+    )
+  }
+  // Próximo / Vencido → Actualizar (crea NUEVO registro, endpoint del servidor).
+  return (
+    <Link
+      href={`/eventos/${fila.eventoId}/actualizar`}
+      className={`${cls} ${fila.estado === 'vencido' ? 'bg-error-bg text-error-text' : 'bg-warning-bg text-warning-text'}`}
+    >
+      Actualizar
+    </Link>
+  )
+}
+
+export function PredioCard({ predio, estados }: { predio: Predio; estados: EstadoFila[] }) {
   const dep = nombreZona(predio.departamento)
   const explotacion = nombreExplotacion(predio.tipoExplotacion)
   const vet = predio.veterinario
@@ -30,22 +73,39 @@ export function PredioCard({ predio }: { predio: Predio }) {
             {[predio.municipio, dep].filter(Boolean).join(', ')}
           </p>
           {explotacion && <p className="mt-1 text-sm text-text-secondary">{explotacion}</p>}
+          {vet?.nombre && (
+            <p className="mt-1 text-sm text-text-secondary">
+              Veterinario: <span className="text-text-primary">{vet.nombre}</span>
+            </p>
+          )}
         </div>
         <Link
           href={`/predios/${predio.id}/editar`}
-          className="shrink-0 rounded-lg bg-brand-light px-3 py-1.5 text-sm font-bold text-brand-primary"
+          className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-sm font-bold text-text-secondary"
         >
           Editar
         </Link>
       </div>
 
-      {vet?.nombre && (
-        <p className="mt-3 text-sm text-text-secondary">
-          Veterinario: <span className="text-text-primary">{vet.nombre}</span>
-        </p>
-      )}
-
-      {/* TODO(eventos): lista de eventos por tipo con chip de estado (Activo/Próximo/Vencido). */}
+      {/* Eventos por tipo: Nombre — Fecha próxima — Estado — Acción (HU-04). */}
+      <ul className="mt-4 flex flex-col divide-y divide-border">
+        {estados.map((f) => (
+          <li key={f.tipoId} className="flex items-center justify-between gap-2 py-2.5">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-text-primary">{f.tipoNombre}</p>
+              <div className="mt-1 flex items-center gap-2">
+                <Chip estado={f.estado} />
+                {f.proximaFecha && (
+                  <span className="text-xs text-text-secondary">
+                    Próx.: {formatoFecha(f.proximaFecha)}
+                  </span>
+                )}
+              </div>
+            </div>
+            <AccionEvento predioId={String(predio.id)} fila={f} />
+          </li>
+        ))}
+      </ul>
     </article>
   )
 }

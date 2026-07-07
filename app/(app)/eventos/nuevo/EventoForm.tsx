@@ -20,18 +20,37 @@ import { Button } from '../../components/Button'
 type Opcion = { id: string; nombre: string }
 const OTRA_MARCA = '__otra_marca__'
 
-export function EventoForm({ predioInicial }: { predioInicial?: string }) {
+/* Modo edición (HU-06, estado Activo): mismo formulario precargado; al guardar
+   hace PATCH /api/eventos/:id → SOBRESCRIBE (corrección). El modo "Actualizar"
+   (Próximo/Vencido, nuevo registro) es otra pantalla: eventos/[id]/actualizar. */
+export type EventoEditar = {
+  eventoId: string
+  fecha: string // YYYY-MM-DD
+  producto: string | null
+  otraMarcaNombre?: string
+  cants: Record<string, string>
+}
+
+export function EventoForm({
+  predioInicial,
+  tipoInicial,
+  editar,
+}: {
+  predioInicial?: string
+  tipoInicial?: string
+  editar?: EventoEditar
+}) {
   const [predios, setPredios] = useState<Opcion[]>([])
   const [tipos, setTipos] = useState<Opcion[]>([])
   const [categorias, setCategorias] = useState<Opcion[]>([])
   const [productos, setProductos] = useState<Opcion[]>([])
 
   const [predio, setPredio] = useState(predioInicial ?? '')
-  const [fecha, setFecha] = useState('')
-  const [tipo, setTipo] = useState('')
-  const [producto, setProducto] = useState('')
-  const [otraMarcaNombre, setOtraMarcaNombre] = useState('')
-  const [cants, setCants] = useState<Record<string, string>>({}) // catId → cantidad
+  const [fecha, setFecha] = useState(editar?.fecha ?? '')
+  const [tipo, setTipo] = useState(tipoInicial ?? '')
+  const [producto, setProducto] = useState(editar ? (editar.producto ?? OTRA_MARCA) : '')
+  const [otraMarcaNombre, setOtraMarcaNombre] = useState(editar?.otraMarcaNombre ?? '')
+  const [cants, setCants] = useState<Record<string, string>>(editar?.cants ?? {}) // catId → cantidad
 
   const [error, setError] = useState<string | null>(null)
   const [dupWarning, setDupWarning] = useState(false)
@@ -132,14 +151,14 @@ export function EventoForm({ predioInicial }: { predioInicial?: string }) {
 
     setLoading(true)
     try {
-      // Advertencia de duplicados (HU-05): primer intento avisa; el segundo guarda.
-      if (!dupWarning && (await hayDuplicado())) {
+      // Advertencia de duplicados (HU-05) solo al CREAR; editar es una corrección.
+      if (!editar && !dupWarning && (await hayDuplicado())) {
         setDupWarning(true)
         return
       }
 
-      const res = await fetch('/api/eventos', {
-        method: 'POST',
+      const res = await fetch(editar ? `/api/eventos/${editar.eventoId}` : '/api/eventos', {
+        method: editar ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           predio,
@@ -188,19 +207,23 @@ export function EventoForm({ predioInicial }: { predioInicial?: string }) {
       : null
     return (
       <div className="rounded-2xl border border-border bg-white p-6 text-center">
-        <h2 className="text-xl font-bold text-brand-primary">¡Evento registrado!</h2>
+        <h2 className="text-xl font-bold text-brand-primary">
+          {editar ? '¡Evento actualizado!' : '¡Evento registrado!'}
+        </h2>
         <p className="mt-2 text-sm text-text-secondary">
           {prox
             ? `Tu próximo evento será el ${prox}.`
             : 'Este producto no programa recordatorio automático.'}
         </p>
         <div className="mt-6 flex flex-col gap-3">
-          <Button size="lg" className="w-full" onClick={reset}>
-            Registrar otro evento
-          </Button>
+          {!editar && (
+            <Button size="lg" className="w-full" onClick={reset}>
+              Registrar otro evento
+            </Button>
+          )}
           <Link
             href="/dashboard"
-            className="inline-flex h-12 items-center justify-center rounded-xl border border-border px-5 font-bold text-text-secondary"
+            className="inline-flex h-12 items-center justify-center rounded-xl bg-brand-primary px-5 font-bold text-white"
           >
             Ir al dashboard
           </Link>
