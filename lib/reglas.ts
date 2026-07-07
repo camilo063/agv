@@ -6,31 +6,25 @@
  */
 
 /**
- * TODO(D-1): Umbral del estado "Próximo" (días antes de `proximaFecha`).
- * El board de Figma sugiere 5 días; HU-09 dispara emails a 3 y 0 días.
- * NO se fija default. Configurar `AGV_DIAS_PROXIMO` una vez cerrado D-1.
- *
- * Fallback comentado (NO activo — descomentar SOLO al cerrar D-1):
- * export const DIAS_PROXIMO = 5
+ * D-1 (CERRADO): estado "Próximo" cuando faltan ≤5 días para `proximaFecha`.
+ * Sigue siendo configurable por entorno (`AGV_DIAS_PROXIMO`) por si el cliente lo
+ * ajusta, con 5 como valor confirmado por defecto.
  */
-export const DIAS_PROXIMO: number = Number(process.env.AGV_DIAS_PROXIMO ?? Number.NaN)
+export const DIAS_PROXIMO: number = Number(process.env.AGV_DIAS_PROXIMO ?? 5)
 
 /**
- * TODO(D-1): umbrales de envío de email (días antes). HU-09: 3 y 0.
- * No se hardcodea hasta confirmar coherencia con el estado "Próximo".
- * Fallback comentado: export const DIAS_EMAIL = [3, 0]
+ * D-1 (CERRADO): emails de recordatorio a 3 y 0 días antes (HU-09).
+ * Configurable por `AGV_DIAS_EMAIL` (CSV); [3, 0] por defecto confirmado.
  */
-export const DIAS_EMAIL: number[] = (process.env.AGV_DIAS_EMAIL ?? '')
+export const DIAS_EMAIL: number[] = (process.env.AGV_DIAS_EMAIL ?? '3,0')
   .split(',')
   .map((s) => Number(s.trim()))
   .filter((n) => !Number.isNaN(n))
 
-/** Lanza si se intenta usar un umbral aún no decidido (evita defaults silenciosos). */
+/** Devuelve el umbral "Próximo". (D-1 cerrado; se mantiene el guard por robustez.) */
 export function requireDiasProximo(): number {
   if (Number.isNaN(DIAS_PROXIMO)) {
-    throw new Error(
-      'TODO(D-1): umbral "Próximo" no configurado. Define AGV_DIAS_PROXIMO tras cerrar D-1.',
-    )
+    throw new Error('AGV_DIAS_PROXIMO inválido: debe ser un número de días.')
   }
   return DIAS_PROXIMO
 }

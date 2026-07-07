@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { soloAdmin } from '../access/soloAdmin'
 import { readScopePorZona } from '../access/byZona'
+import { fijarResponsable } from '../hooks/predioResponsable'
 
 /**
  * Predios. Campos de HU-03 / HU-4.1. El UE gestiona los propios; el admin todos;
@@ -28,6 +29,9 @@ export const Predios: CollectionConfig = {
       return false // URT
     },
     delete: soloAdmin, // habilitar/deshabilitar y eliminar son acciones de admin.
+  },
+  hooks: {
+    beforeChange: [fijarResponsable],
   },
   fields: [
     { name: 'nombre', type: 'text', required: true },

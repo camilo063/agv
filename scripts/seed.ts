@@ -22,6 +22,44 @@ const TIPOS = [
   'Desparasitación',
 ] as const
 
+// Departamentos de Colombia (lista DANE) = Zonas. Base del filtro de acceso del URT
+// y del campo `departamento` de los predios. Lista canónica (no es una decisión abierta).
+const ZONAS = [
+  'Amazonas',
+  'Antioquia',
+  'Arauca',
+  'Atlántico',
+  'Bogotá D.C.',
+  'Bolívar',
+  'Boyacá',
+  'Caldas',
+  'Caquetá',
+  'Casanare',
+  'Cauca',
+  'Cesar',
+  'Chocó',
+  'Córdoba',
+  'Cundinamarca',
+  'Guainía',
+  'Guaviare',
+  'Huila',
+  'La Guajira',
+  'Magdalena',
+  'Meta',
+  'Nariño',
+  'Norte de Santander',
+  'Putumayo',
+  'Quindío',
+  'Risaralda',
+  'San Andrés y Providencia',
+  'Santander',
+  'Sucre',
+  'Tolima',
+  'Valle del Cauca',
+  'Vaupés',
+  'Vichada',
+] as const
+
 // Categorías de animales (según el board de flujos, UE-Registro de evento).
 const CATEGORIAS = [
   'Crías',
@@ -56,7 +94,7 @@ async function main() {
   const req = { context: { disableRevalidate: true } } as never
 
   async function upsertByNombre(
-    collection: 'tipos-evento' | 'categorias' | 'productos',
+    collection: 'tipos-evento' | 'categorias' | 'productos' | 'zonas',
     nombre: string,
     data: Record<string, unknown>,
   ): Promise<string | number> {
@@ -73,6 +111,11 @@ async function main() {
     }
     const created = await payload.create({ collection, data: { nombre, ...data }, req })
     return created.id
+  }
+
+  payload.logger.info('Seed: zonas (departamentos de Colombia)…')
+  for (const nombre of ZONAS) {
+    await upsertByNombre('zonas', nombre, {})
   }
 
   payload.logger.info('Seed: tipos de evento…')
@@ -99,7 +142,7 @@ async function main() {
   }
 
   payload.logger.info(
-    `Seed OK: ${TIPOS.length} tipos, ${CATEGORIAS.length} categorías, ${PRODUCTOS.length} productos.`,
+    `Seed OK: ${ZONAS.length} zonas, ${TIPOS.length} tipos, ${CATEGORIAS.length} categorías, ${PRODUCTOS.length} productos.`,
   )
 }
 
