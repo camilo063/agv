@@ -2,22 +2,20 @@ import Link from 'next/link'
 import React from 'react'
 
 import { getPayloadClient } from '../../../lib/auth'
+import { Logo } from '../components/Logo'
 import { LoginForm } from './LoginForm'
 
 export const dynamic = 'force-dynamic'
 
-/* UE-Login (/login, acceso vía QR). Ramas del flujo:
-   - "¿Olvidaste tu contraseña?" → mensaje informativo (HU-1.3; dato de contacto
-     pendiente — DF-7).
-   - "¿No tienes cuenta? Regístrate" → /registro (HU-01).
-   - ?verificado=1 → confirmación tras abrir el enlace del correo de verificación. */
+/* UE-Login (/login, acceso vía QR) — Figma "Usuario Externo - 1" (41:1220):
+   logo 220px centrado, título "Inicio de sesión" + "Los campos con * son
+   obligatorios", formulario, y debajo: "¿Olvidó su contraseña?" (→ /recuperar,
+   pantalla UE-3) y "¿No tiene cuenta? Regístrese aquí". */
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ verificado?: string; next?: string }>
 }) {
-  // `next`: destino post-login (p. ej. el link "Actualizar evento" del correo de
-  // recordatorio, HU-09: "si no tiene sesión, pasa por login y luego se redirige").
   const { verificado, next } = await searchParams
 
   // DF-7 CERRADA: contacto del asesor administrable desde el CMS (global).
@@ -28,10 +26,17 @@ export default async function LoginPage({
     .join(' · ')
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col justify-center gap-8 px-6 py-10">
-      <header className="text-center">
-        <h1 className="text-3xl font-bold text-brand-primary">AGV Salud Animal</h1>
-        <p className="mt-2 text-base text-text-secondary">Ingresa para gestionar tu hato</p>
+    <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col justify-center gap-8 px-10 py-12">
+      <header className="flex flex-col items-center gap-8 text-center">
+        <Logo width={220} priority />
+        <div>
+          <h1 className="text-[2rem] font-bold leading-tight text-text-primary">
+            Inicio de sesión
+          </h1>
+          <p className="mt-2 text-base text-text-secondary">
+            Los campos con * son obligatorios
+          </p>
+        </div>
       </header>
 
       {verificado === '1' && (
@@ -42,17 +47,17 @@ export default async function LoginPage({
 
       <LoginForm next={next} />
 
-      <div className="flex flex-col gap-2 text-center text-sm text-text-secondary">
-        <p>
-          ¿Olvidaste tu contraseña? Contacta a tu asesor AGV.
-          {contacto && <span className="font-bold text-text-primary"> {contacto}</span>}
-        </p>
-        <p>
-          ¿No tienes cuenta?{' '}
+      <div className="flex flex-col gap-4 text-center">
+        <Link href="/recuperar" className="text-lg font-bold text-brand-primary">
+          ¿Olvidó su contraseña?
+        </Link>
+        <p className="text-base text-text-secondary">
+          ¿No tiene cuenta?{' '}
           <Link href="/registro" className="font-bold text-brand-primary">
-            Regístrate
+            Regístrese aquí
           </Link>
         </p>
+        {contacto && <p className="text-sm text-text-secondary">Asesor AGV: {contacto}</p>}
       </div>
     </main>
   )

@@ -6,6 +6,7 @@ import { idOf } from '../../../../../lib/estadoEventos'
 import { derivarEstado } from '../../../../../lib/reglas'
 import type { Evento } from '../../../../../payload-types'
 import { FootBar } from '../../../components/FootBar'
+import { HeaderUE } from '../../../components/HeaderUE'
 import { EventoForm, type EventoEditar } from '../../nuevo/EventoForm'
 
 export const dynamic = 'force-dynamic'
@@ -50,13 +51,20 @@ export default async function EditarEventoPage({ params }: { params: Promise<{ i
   }
 
   return (
-    <div className="mx-auto min-h-dvh max-w-[412px] px-5 pb-24 pt-6">
-      <h1 className="mb-6 text-2xl font-bold text-text-primary">Editar evento</h1>
-      <EventoForm
-        predioInicial={idOf(evento.predio)}
-        tipoInicial={idOf(evento.tipoEvento)}
-        editar={editar}
-      />
+    <div className="mx-auto min-h-dvh max-w-[412px] bg-white pb-24">
+      <HeaderUE />
+      <main className="px-5 pt-6">
+        {/* Figma UE-10: "Editar Evento" centrado + helper. */}
+        <header className="mb-6 text-center">
+          <h1 className="text-[2rem] font-bold leading-tight text-text-primary">Editar Evento</h1>
+          <p className="mt-2 text-base text-text-secondary">Los campos con * son obligatorios</p>
+        </header>
+        <EventoForm
+          predioInicial={idOf(evento.predio)}
+          tipoInicial={idOf(evento.tipoEvento)}
+          editar={editar}
+        />
+      </main>
       <FootBar />
     </div>
   )

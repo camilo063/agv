@@ -46,10 +46,39 @@
 
 html,
 body {
-  background-color: var(--color-surface);
+  background-color: var(--color-white);
   color: var(--color-text-primary);
   font-family: var(--font-family-base);
   -webkit-font-smoothing: antialiased;
 }
 
 /* UE = mobile-first a 412px (escala hacia arriba). Ver 08-diseno-y-prototipos.md. */
+
+/* ============================================================================
+   Clases utilitarias del DESIGN SYSTEM (extraídas del Figma canónico):
+   - Input Text SM (nodo 11:2137): pill radius 24, borde 2px brand, px-32/py-16,
+     texto 18, placeholder text-secondary; focus → borde brand-secondary;
+     error → fondo error-bg + borde error-text; disabled → surface + placeholder.
+   - Input XS (46:4566): px-16/py-8, min-h 38 — para tablas/densidad del interno.
+   - Label (11:2208): 18px bold text-primary.
+   ============================================================================ */
+@layer components {
+  .input-agv {
+    @apply w-full rounded-3xl border-2 border-brand-primary bg-white px-6 py-3
+      text-lg text-text-primary placeholder:text-text-secondary
+      focus:border-brand-secondary focus:outline-none
+      disabled:border-placeholder disabled:bg-surface disabled:text-placeholder;
+  }
+  .input-agv-error {
+    @apply border-error-text bg-error-bg;
+  }
+  .input-agv-sm {
+    @apply min-h-[38px] rounded-3xl border-2 border-brand-primary bg-white
+      px-4 py-1.5 text-[15px] text-text-primary placeholder:text-text-secondary
+      focus:border-brand-secondary focus:outline-none
+      disabled:border-placeholder disabled:bg-surface disabled:text-placeholder;
+  }
+  .label-agv {
+    @apply text-lg font-bold text-text-primary;
+  }
+}

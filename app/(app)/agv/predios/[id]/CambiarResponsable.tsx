@@ -85,7 +85,7 @@ export function CambiarResponsable({ predioId }: { predioId: string }) {
             <>
               <input
                 autoFocus
-                className="h-10 w-full rounded-lg border border-border px-3 text-sm focus:border-brand-primary focus:outline-none"
+                className="input-agv-sm w-full"
                 placeholder="Buscar usuario externo (nombre o email)"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}

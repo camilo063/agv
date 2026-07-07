@@ -124,7 +124,7 @@ export function EditarUsuarioForm({ initial }: { initial: UsuarioEditar }) {
   }
 
   const inputCls =
-    'h-11 w-full rounded-lg border border-border bg-white px-3 text-sm text-text-primary focus:border-brand-primary focus:outline-none'
+    'input-agv-sm w-full'
   const labelCls = 'flex flex-col gap-1'
   const labelSpan = 'text-sm font-bold text-text-primary'
 

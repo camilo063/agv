@@ -44,12 +44,12 @@ export function LoginFormInterno({ contacto }: { contacto?: string }) {
   }
 
   const inputCls =
-    'h-12 w-full rounded-full border border-brand-primary bg-white px-5 text-base text-text-primary placeholder:text-placeholder focus:border-brand-secondary focus:outline-none'
+    'input-agv'
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold text-text-primary">Correo electrónico*</span>
+        <span className="label-agv">Correo electrónico*</span>
         <input
           type="email"
           autoComplete="email"
@@ -62,7 +62,7 @@ export function LoginFormInterno({ contacto }: { contacto?: string }) {
       </label>
 
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold text-text-primary">Contraseña*</span>
+        <span className="label-agv">Contraseña*</span>
         <div className="relative">
           <input
             type={showPass ? 'text' : 'password'}

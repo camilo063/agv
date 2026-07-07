@@ -53,7 +53,7 @@ export function FiltrosTabla({
   }, [q])
 
   const selCls =
-    'h-10 rounded-lg border border-border bg-white px-3 text-sm text-text-primary focus:border-brand-primary focus:outline-none'
+    'input-agv-sm'
 
   return (
     <div className="flex flex-wrap items-end gap-3">

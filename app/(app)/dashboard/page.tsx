@@ -6,6 +6,8 @@ import { getCurrentUser } from '../../../lib/auth'
 import { diasHasta, formatoFecha, idOf, mapaEstados } from '../../../lib/estadoEventos'
 import type { Evento } from '../../../payload-types'
 import { FootBar } from '../components/FootBar'
+import { HeaderUE } from '../components/HeaderUE'
+import { botonCls } from '../components/Button'
 import { PredioCard, type EstadoFila } from '../components/PredioCard'
 
 // Depende de la sesión (cookie) del UE: siempre dinámico, nunca prerender en build.
@@ -85,16 +87,11 @@ export default async function DashboardPage({
     })
 
   return (
-    <div className="mx-auto min-h-dvh max-w-[412px] px-5 pb-24 pt-6">
-      <header className="mb-6 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Inicio</h1>
-          <p className="text-sm text-text-secondary">Hola, {user.nombre}</p>
-        </div>
-        <Link href="/perfil" className="text-sm font-bold text-brand-primary">
-          Mi cuenta
-        </Link>
-      </header>
+    <div className="mx-auto min-h-dvh max-w-[412px] bg-white pb-24">
+      {/* Header móvil del Figma (logo + Cerrar sesión). El logo lleva a /perfil. */}
+      <HeaderUE />
+      <div className="px-5 pt-6">
+      <p className="mb-4 text-sm text-text-secondary">Hola, {user.nombre}</p>
 
       {bienvenida === '1' && (
         <p className="mb-6 rounded-lg bg-success-bg px-3 py-2 text-center text-sm font-bold text-success-text">
@@ -105,7 +102,7 @@ export default async function DashboardPage({
 
       {urgentes.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 text-lg font-bold text-text-primary">Próximos eventos</h2>
+          <h2 className="mb-3 text-2xl font-bold text-text-primary">Próximos eventos</h2>
           <ul className="flex flex-col gap-3">
             {urgentes.map(({ estado, evento }) => {
               const predio = prediosById.get(idOf(evento.predio))
@@ -147,14 +144,16 @@ export default async function DashboardPage({
       )}
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-text-primary">Mis predios</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-text-primary">Mis predios</h2>
+          <Link href="/predios/nuevo" className={botonCls('secondary', 'sm')}>
+            + Registrar predio
+          </Link>
+        </div>
         {predios.length === 0 ? (
           <div className="rounded-2xl border border-border bg-white p-6 text-center">
             <p className="text-base text-text-secondary">Aún no tienes predios registrados</p>
-            <Link
-              href="/predios/nuevo"
-              className="mt-4 inline-flex h-12 items-center justify-center rounded-xl bg-brand-primary px-5 font-bold text-white"
-            >
+            <Link href="/predios/nuevo" className={botonCls('primary', 'md', 'mt-4')}>
               Registrar predio
             </Link>
           </div>
@@ -163,16 +162,11 @@ export default async function DashboardPage({
             {predios.map((p) => (
               <PredioCard key={p.id} predio={p} estados={filasDe(String(p.id))} />
             ))}
-            <Link
-              href="/predios/nuevo"
-              className="inline-flex h-12 items-center justify-center rounded-xl border border-brand-primary px-5 font-bold text-brand-primary"
-            >
-              + Registrar predio
-            </Link>
           </>
         )}
       </section>
 
+      </div>
       <FootBar />
     </div>
   )

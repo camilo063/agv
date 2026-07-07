@@ -60,7 +60,7 @@ export function LoginForm({ next }: { next?: string }) {
   }
 
   const inputCls =
-    'h-12 w-full rounded-xl border border-border bg-white px-4 text-base text-text-primary placeholder:text-placeholder focus:border-brand-primary focus:outline-none'
+    'input-agv'
 
   if (sesionPrevia) {
     const detalle = [sesionPrevia.so, sesionPrevia.navegador].filter(Boolean).join(' · ')
@@ -90,7 +90,7 @@ export function LoginForm({ next }: { next?: string }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <label className="flex flex-col gap-1.5">
-        <span className="text-base font-bold text-text-primary">Email</span>
+        <span className="label-agv">Email</span>
         <input
           type="email"
           autoComplete="email"
@@ -103,7 +103,7 @@ export function LoginForm({ next }: { next?: string }) {
       </label>
 
       <label className="flex flex-col gap-1.5">
-        <span className="text-base font-bold text-text-primary">Contraseña</span>
+        <span className="label-agv">Contraseña</span>
         <input
           type="password"
           autoComplete="current-password"

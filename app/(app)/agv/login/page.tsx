@@ -1,14 +1,15 @@
+import Image from 'next/image'
 import React from 'react'
 
 import { getPayloadClient } from '../../../../lib/auth'
+import { Logo } from '../../components/Logo'
 import { LoginFormInterno } from './LoginFormInterno'
 
 export const dynamic = 'force-dynamic'
 
-/* Login del personal interno (HU-10) — /agv/login. Diseño split-screen del Figma
-   (Usuario Interno - 1, nodo 46:2491): panel verde de marca a la izquierda,
-   formulario a la derecha. Desktop-first (el interno es panel de gestión).
-   TODO(asset): exportar el logo/curva AGV del Figma; por ahora wordmark tipográfico. */
+/* Login del personal interno (HU-10) — Figma "Usuario Interno - 1" (46:2491):
+   panel izquierdo verde brand con la curva del logo en blanco, y a la derecha
+   el logo AGV + "Inicio de sesión" + formulario. Desktop-first. */
 export default async function LoginInternoPage() {
   // DF-7: contacto administrable (global del CMS) para "¿Olvidó su contraseña?".
   const payload = await getPayloadClient()
@@ -19,21 +20,35 @@ export default async function LoginInternoPage() {
 
   return (
     <main className="flex min-h-dvh">
-      {/* Panel de marca (Figma: verde brand con curva del logo en trazo claro). */}
-      <aside className="hidden w-1/2 bg-brand-primary md:block" aria-hidden="true" />
+      {/* Panel de marca: verde con la curva del logo (SVG blanco real del Figma). */}
+      <aside
+        className="relative hidden w-1/2 items-center justify-center overflow-hidden bg-brand-primary md:flex"
+        aria-hidden="true"
+      >
+        <Image
+          src="/logo-agv-blanco.svg"
+          alt=""
+          width={640}
+          height={286}
+          className="max-w-[75%] opacity-90"
+          priority
+        />
+      </aside>
 
       <section className="flex w-full flex-col items-center justify-center px-6 py-10 md:w-1/2">
-        <div className="w-full max-w-[360px]">
-          <p className="mb-8 text-center text-xl font-bold text-brand-primary">
-            agv salud animal
-          </p>
+        <div className="flex w-full max-w-[380px] flex-col items-center">
+          <Logo width={200} priority />
 
-          <h1 className="text-center text-2xl font-bold text-text-primary">Inicio de sesión</h1>
-          <p className="mb-8 mt-1 text-center text-sm text-text-secondary">
+          <h1 className="mt-8 text-center text-[2rem] font-bold leading-tight text-text-primary">
+            Inicio de sesión
+          </h1>
+          <p className="mb-8 mt-2 text-center text-base text-text-secondary">
             Los campos con * son obligatorios
           </p>
 
-          <LoginFormInterno contacto={contacto} />
+          <div className="w-full">
+            <LoginFormInterno contacto={contacto} />
+          </div>
         </div>
       </section>
     </main>

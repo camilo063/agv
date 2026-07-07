@@ -1,8 +1,9 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
 import { getCurrentUser } from '../../../lib/auth'
+import { FootBar } from '../components/FootBar'
+import { HeaderUE } from '../components/HeaderUE'
 import { LogoutButton } from './LogoutButton'
 import { PerfilForm, type PerfilInitial } from './PerfilForm'
 
@@ -24,17 +25,20 @@ export default async function PerfilPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col gap-6 px-5 py-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-text-primary">Mi cuenta</h1>
-        <Link href="/dashboard" className="text-sm font-bold text-brand-primary">
-          Volver
-        </Link>
-      </header>
+    <div className="mx-auto min-h-dvh max-w-[412px] bg-white pb-24">
+      <HeaderUE />
+      <main className="flex flex-col gap-6 px-5 pt-6">
+        {/* Figma UE-11: "Mis datos" centrado + helper. */}
+        <header className="text-center">
+          <h1 className="text-[2rem] font-bold leading-tight text-text-primary">Mis datos</h1>
+          <p className="mt-2 text-base text-text-secondary">Los campos con * son obligatorios</p>
+        </header>
 
-      <PerfilForm initial={initial} />
+        <PerfilForm initial={initial} />
 
-      <LogoutButton />
-    </main>
+        <LogoutButton />
+      </main>
+      <FootBar />
+    </div>
   )
 }

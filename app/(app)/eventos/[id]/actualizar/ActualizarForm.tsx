@@ -114,9 +114,9 @@ export function ActualizarForm({
   }
 
   const roCls =
-    'flex h-12 w-full items-center rounded-xl border border-border bg-neutral-bg px-4 text-base text-neutral-text'
+    'flex w-full items-center rounded-3xl border-2 border-placeholder bg-surface px-6 py-3 text-lg text-placeholder'
   const labelCls = 'flex flex-col gap-1.5'
-  const labelSpan = 'text-base font-bold text-text-primary'
+  const labelSpan = 'label-agv'
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
@@ -138,7 +138,7 @@ export function ActualizarForm({
         <span className={labelSpan}>Fecha del evento *</span>
         <input
           type="date"
-          className="h-12 w-full rounded-xl border border-border bg-white px-4 text-base text-text-primary focus:border-brand-primary focus:outline-none"
+          className="input-agv"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
           required

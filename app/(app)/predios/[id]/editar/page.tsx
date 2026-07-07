@@ -3,6 +3,8 @@ import React from 'react'
 
 import { getCurrentUser } from '../../../../../lib/auth'
 import type { Predio, Zona, TiposExplotacion } from '../../../../../payload-types'
+import { FootBar } from '../../../components/FootBar'
+import { HeaderUE } from '../../../components/HeaderUE'
 import { PredioForm, type PredioInitial } from '../../PredioForm'
 
 export const dynamic = 'force-dynamic'
@@ -41,9 +43,16 @@ export default async function EditarPredioPage({ params }: { params: Promise<{ i
   }
 
   return (
-    <main className="mx-auto min-h-dvh max-w-[412px] px-5 pb-16 pt-6">
-      <h1 className="mb-6 text-2xl font-bold text-text-primary">Editar predio</h1>
-      <PredioForm predioId={id} initial={initial} />
-    </main>
+    <div className="mx-auto min-h-dvh max-w-[412px] bg-white pb-24">
+      <HeaderUE />
+      <main className="px-5 pt-6">
+        <header className="mb-6 text-center">
+          <h1 className="text-[2rem] font-bold leading-tight text-text-primary">Editar predio</h1>
+          <p className="mt-2 text-base text-text-secondary">Los campos con * son obligatorios</p>
+        </header>
+        <PredioForm predioId={id} initial={initial} />
+      </main>
+      <FootBar />
+    </div>
   )
 }
