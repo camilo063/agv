@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { Button } from '../../components/Button'
+import { Button, botonCls } from '../../components/Button'
+import { TarjetaExito } from '../../components/TarjetaExito'
 
 /* Registro de evento (HU-05) — flujo UE-Registro de evento (07-flujos).
    TODO el contenido viene de Payload vía API REST (con cookie → RBAC en servidor):
@@ -206,29 +207,23 @@ export function EventoForm({
         })
       : null
     return (
-      <div className="rounded-2xl border border-border bg-white p-6 text-center">
-        <h2 className="text-xl font-bold text-brand-primary">
-          {editar ? '¡Evento actualizado!' : '¡Evento registrado!'}
-        </h2>
-        <p className="mt-2 text-sm text-text-secondary">
+      <TarjetaExito titulo={editar ? '¡Evento actualizado!' : '¡Evento registrado!'}>
+        <p>
           {prox
-            ? `Tu próximo evento será el ${prox}.`
-            : 'Este producto no programa recordatorio automático.'}
+            ? `Tu próximo evento será el ${prox}`
+            : 'Este producto no programa recordatorio automático'}
         </p>
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-4 flex flex-col justify-center gap-3 sm:flex-row">
+          <Link href="/dashboard" className={botonCls('secondary', 'md', 'min-w-[150px]')}>
+            Ir al dashboard
+          </Link>
           {!editar && (
-            <Button size="lg" className="w-full" onClick={reset}>
+            <Button size="md" className="min-w-[150px]" onClick={reset}>
               Registrar otro evento
             </Button>
           )}
-          <Link
-            href="/dashboard"
-            className="inline-flex h-12 items-center justify-center rounded-xl bg-brand-primary px-5 font-bold text-white"
-          >
-            Ir al dashboard
-          </Link>
         </div>
-      </div>
+      </TarjetaExito>
     )
   }
 

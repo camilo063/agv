@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { Button } from '../../../components/Button'
+import { Button, botonCls } from '../../../components/Button'
+import { TarjetaExito } from '../../../components/TarjetaExito'
 
 /* HU-07 — Actualizar evento (Próximo/Vencido). Predio, Tipo y Producto vienen
    precargados y NO editables (gris); el usuario ingresa nueva Fecha, Categorías
@@ -96,20 +97,14 @@ export function ActualizarForm({
         })
       : null
     return (
-      <div className="rounded-2xl border border-border bg-white p-6 text-center">
-        <h2 className="text-xl font-bold text-brand-primary">¡Evento actualizado!</h2>
-        <p className="mt-2 text-sm text-text-secondary">
-          {prox ? `Tu próximo evento será el ${prox}.` : 'Sin recordatorio automático.'}
-        </p>
-        <div className="mt-6 flex flex-col gap-3">
-          <Link
-            href="/dashboard"
-            className="inline-flex h-12 items-center justify-center rounded-xl bg-brand-primary px-5 font-bold text-white"
-          >
+      <TarjetaExito titulo="¡Evento actualizado!">
+        <p>{prox ? `Tu próximo evento será el ${prox}` : 'Sin recordatorio automático'}</p>
+        <div className="mt-4 flex justify-center">
+          <Link href="/dashboard" className={botonCls('primary', 'md', 'min-w-[150px]')}>
             Ir al dashboard
           </Link>
         </div>
-      </div>
+      </TarjetaExito>
     )
   }
 

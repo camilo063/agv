@@ -82,6 +82,7 @@ export default async function DashboardPage({
         tipoNombre: t.nombre,
         estado: r.estado,
         eventoId: r.evento ? String(r.evento.id) : undefined,
+        fecha: r.evento?.fecha ?? null,
         proximaFecha: r.evento?.proximaFecha ?? null,
       }
     })
@@ -103,39 +104,52 @@ export default async function DashboardPage({
       {urgentes.length > 0 && (
         <section className="mb-8">
           <h2 className="mb-3 text-2xl font-bold text-text-primary">Próximos eventos</h2>
+          {/* Prox. Event card — specs del Figma (39:743): borde IZQUIERDO 4px del
+              color del estado, radio 20, chip SM con el conteo arriba a la derecha,
+              tipo 18 bold + "Predio: X", botón SM outline "Actualizar". */}
           <ul className="flex flex-col gap-3">
             {urgentes.map(({ estado, evento }) => {
               const predio = prediosById.get(idOf(evento.predio))
               const tipo = tiposById.get(idOf(evento.tipoEvento))
               const prox = evento.proximaFecha as string
               const dias = diasHasta(prox, hoy)
+              const vencido = estado === 'vencido'
               return (
                 <li
                   key={String(evento.id)}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-white p-4"
+                  className={`flex flex-col gap-1 rounded-[20px] border-l-4 bg-white p-4 shadow-[0px_1px_4px_0px_rgba(0,0,0,0.08)] ${
+                    vencido ? 'border-error-text' : 'border-warning-text'
+                  }`}
                 >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-text-primary">
-                      {tipo?.nombre} · {predio?.nombre}
-                    </p>
-                    <p
-                      className={`mt-0.5 text-sm font-bold ${
-                        estado === 'vencido' ? 'text-error-text' : 'text-warning-text'
+                  <div className="flex justify-end">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-sm font-bold ${
+                        vencido ? 'bg-error-bg text-error-text' : 'bg-warning-bg text-warning-text'
                       }`}
                     >
-                      {estado === 'vencido'
+                      <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+                      {vencido
                         ? `Venció el ${formatoFecha(prox)}`
                         : dias === 0
                           ? 'Vence hoy'
                           : `Vence en ${dias} día${dias === 1 ? '' : 's'}`}
-                    </p>
+                    </span>
                   </div>
-                  <Link
-                    href={`/eventos/${evento.id}/actualizar`}
-                    className="shrink-0 rounded-lg bg-brand-primary px-3 py-2 text-sm font-bold text-white"
-                  >
-                    Actualizar
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-lg font-bold text-text-primary">{tipo?.nombre}</p>
+                      <p className="truncate text-sm">
+                        <span className="font-bold text-text-secondary">Predio: </span>
+                        <span className="text-text-primary">{predio?.nombre}</span>
+                      </p>
+                    </div>
+                    <Link
+                      href={`/eventos/${evento.id}/actualizar`}
+                      className={botonCls('secondary', 'sm', 'shrink-0')}
+                    >
+                      Actualizar
+                    </Link>
+                  </div>
                 </li>
               )
             })}

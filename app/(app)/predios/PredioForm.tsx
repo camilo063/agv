@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { Button } from '../components/Button'
+import { Button, botonCls } from '../components/Button'
+import { TarjetaExito } from '../components/TarjetaExito'
 
 /* Formulario de predio (registrar/editar) — HU-03 / HU-4.1.
    Campos definidos por las HU: Nombre*, Tipo de explotación (opcional), Dirección,
@@ -136,27 +137,19 @@ export function PredioForm({
   }
 
   if (creadoId) {
+    // Success Pop-up del Figma (46:736): Cerrar (secondary) + Registrar evento (primary).
     return (
-      <div className="rounded-2xl border border-border bg-white p-6 text-center">
-        <h2 className="text-xl font-bold text-brand-primary">¡Predio registrado!</h2>
-        <p className="mt-2 text-sm text-text-secondary">
-          {form.nombre} fue registrado exitosamente.
-        </p>
-        <div className="mt-6 flex flex-col gap-3">
-          <Link
-            href={`/eventos/nuevo?predio=${creadoId}`}
-            className="inline-flex h-12 items-center justify-center rounded-xl bg-brand-primary px-5 font-bold text-white"
-          >
+      <TarjetaExito titulo="¡Predio registrado!">
+        <p>{form.nombre} fue registrado exitosamente</p>
+        <div className="mt-4 flex flex-col justify-center gap-3 sm:flex-row">
+          <Link href="/dashboard" className={botonCls('secondary', 'md', 'min-w-[150px]')}>
+            Cerrar
+          </Link>
+          <Link href={`/eventos/nuevo?predio=${creadoId}`} className={botonCls('primary', 'md', 'min-w-[150px]')}>
             Registrar evento
           </Link>
-          <Link
-            href="/dashboard"
-            className="inline-flex h-12 items-center justify-center rounded-xl border border-border px-5 font-bold text-text-secondary"
-          >
-            Ir al dashboard
-          </Link>
         </div>
-      </div>
+      </TarjetaExito>
     )
   }
 

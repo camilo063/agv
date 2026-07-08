@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React from 'react'
@@ -98,10 +99,31 @@ export default async function DashboardInternoPage({
     vencidosDocs.docs.map((e) => String((e as { predio: unknown }).predio)),
   ).size
 
+  // Card Statistic — specs del Figma (46:4631): radio 20, px-40/py-20, ícono 64px
+  // + número 48 bold coloreado + etiqueta 14 bold text-secondary. La variante
+  // "Total" lleva borde success-bg; las demás borde neutro.
   const stats = [
-    { valor: totalPredios.totalDocs, etiqueta: 'Total fincas registradas', tono: 'text-brand-primary' },
-    { valor: prediosVencidos, etiqueta: 'Predios con eventos vencidos', tono: 'text-error-text' },
-    { valor: eventosMes.totalDocs, etiqueta: 'Eventos registrados este mes', tono: 'text-text-primary' },
+    {
+      valor: totalPredios.totalDocs,
+      etiqueta: 'Total fincas registradas',
+      tono: 'text-success-text',
+      borde: 'border-success-bg',
+      icono: '/icono-stat-fincas.svg',
+    },
+    {
+      valor: prediosVencidos,
+      etiqueta: 'Predios con eventos vencidos',
+      tono: 'text-error-text',
+      borde: 'border-border',
+      icono: '/icono-stat-vencidos.svg',
+    },
+    {
+      valor: eventosMes.totalDocs,
+      etiqueta: 'Eventos registrados este mes',
+      tono: 'text-neutral-text',
+      borde: 'border-border',
+      icono: '/icono-stat-eventos.svg',
+    },
   ]
 
   // Filtro de departamento para URT: SOLO los de su zona asignada (flujo C).
@@ -135,9 +157,15 @@ export default async function DashboardInternoPage({
         {/* ——— Sección 1: estadísticas ——— */}
         <section className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {stats.map((s) => (
-            <div key={s.etiqueta} className="rounded-2xl border border-border bg-white p-5">
-              <p className={`text-3xl font-bold ${s.tono}`}>{s.valor}</p>
-              <p className="mt-1 text-sm text-text-secondary">{s.etiqueta}</p>
+            <div
+              key={s.etiqueta}
+              className={`flex items-center gap-4 rounded-[20px] border bg-white px-8 py-5 ${s.borde}`}
+            >
+              <Image src={s.icono} alt="" width={56} height={56} aria-hidden="true" />
+              <div className="min-w-0">
+                <p className={`text-5xl font-bold leading-none ${s.tono}`}>{s.valor}</p>
+                <p className="mt-1 text-sm font-bold text-text-secondary">{s.etiqueta}</p>
+              </div>
             </div>
           ))}
         </section>
