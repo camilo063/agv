@@ -143,12 +143,20 @@ export async function correrRecordatorios(payload: Payload, ahora = new Date()):
       const asunto = interpolar(plantilla?.asunto ?? defecto.asunto, vars)
       const cuerpo = interpolar(plantilla?.cuerpo ?? defecto.cuerpo, vars)
 
-      await payload.sendEmail({
-        to: email,
-        subject: asunto,
-        text: cuerpo,
-        html: `${cuerpo.replaceAll('\n', '<br/>')}<br/><br/><a href="${vars.enlace}">Actualizar evento</a>`,
-      })
+      // Un fallo del proveedor en UN correo no debe tumbar la corrida completa:
+      // se registra como omitido con detalle y se continúa con los demás.
+      try {
+        await payload.sendEmail({
+          to: email,
+          subject: asunto,
+          text: cuerpo,
+          html: `${cuerpo.replaceAll('\n', '<br/>')}<br/><br/><a href="${vars.enlace}">Actualizar evento</a>`,
+        })
+      } catch (e) {
+        resumen.omitidos++
+        resumen.detalle.push(`evento ${evento.id}: fallo de envío a ${email} — ${String(e)}`)
+        continue
+      }
 
       // Marca el flag (overrideAccess: el field access bloquea a clientes).
       await payload.update({
