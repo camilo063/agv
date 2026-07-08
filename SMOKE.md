@@ -4,9 +4,9 @@
 - Ambiente: https://agv-gray.vercel.app (producción · Vercel + Neon + Resend)
 - Fecha: 2026-07-08T01:50:26.870Z
 - Cobertura: 19/19 flujos del board (docs/07) · matriz RBAC (docs/09 §5) · máquina de estados (docs/02) · HU-09 con entrega real de correo · exports CSV/Excel · PWA.
-- Suite reproducible:  (casos API) +  (evidencias Playwright).
-- Hallazgos corregidos durante el smoke: CRON_SECRET rotado y verificado; manifest PWA movido a  (404→200); regla Vercel WAF de rate-limit global en  (429 verificado); recordatorios resilientes a fallos del proveedor de correo.
-- Datos de prueba: creados y eliminados por la suite (). Se conserva la cuenta demo con la "Finca Demo".
+- Suite reproducible: `node scripts/smoke-prod.mjs` (casos API) + `node scripts/smoke-screenshots.mjs` (evidencias Playwright).
+- Hallazgos corregidos durante el smoke: CRON_SECRET rotado y verificado; manifest PWA movido a `app/manifest.ts` (404→200); regla Vercel WAF de rate-limit global en `/api/registro` (429 verificado); recordatorios resilientes a fallos del proveedor de correo.
+- Datos de prueba: creados y eliminados por la suite (`*@agvtest.dev`). Se conserva la cuenta demo con la "Finca Demo".
 
 | ID | Caso | Esperado | Obtenido | Resultado |
 |---|---|---|---|---|
