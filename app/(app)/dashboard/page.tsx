@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React from 'react'
@@ -165,9 +166,14 @@ export default async function DashboardPage({
           </Link>
         </div>
         {predios.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-white p-6 text-center">
-            <p className="text-base text-text-secondary">Aún no tienes predios registrados</p>
-            <Link href="/predios/nuevo" className={botonCls('primary', 'md', 'mt-4')}>
+          /* Cards empty state del Figma (UE-13): ícono 64 + texto + CTA. */
+          <div className="flex flex-col items-center gap-4 rounded-[20px] border border-border bg-white px-10 py-10 text-center">
+            <Image src="/icono-jeringa-gris.svg" alt="" width={64} height={64} aria-hidden="true" />
+            <p className="text-lg font-bold text-text-primary">Aún no tienes predios registrados</p>
+            <p className="text-sm text-text-secondary">
+              Registra tu primer predio para empezar a llevar el control sanitario de tu hato.
+            </p>
+            <Link href="/predios/nuevo" className={botonCls('primary', 'md')}>
               Registrar predio
             </Link>
           </div>

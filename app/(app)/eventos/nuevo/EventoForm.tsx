@@ -107,17 +107,9 @@ export function EventoForm({
   }
 
   const categoriasElegidas = useMemo(
-    () => Object.entries(cants).filter(([, v]) => v !== ''),
+    () => Object.entries(cants).filter(([, v]) => Number(v) > 0),
     [cants],
   )
-
-  const toggleCat = (id: string) =>
-    setCants((c) => {
-      const n = { ...c }
-      if (id in n) delete n[id]
-      else n[id] = '1'
-      return n
-    })
 
   async function hayDuplicado(): Promise<boolean> {
     const desde = `${fecha}T00:00:00.000Z`
@@ -146,7 +138,7 @@ export function EventoForm({
       return
     }
     if (categoriasElegidas.length === 0 || categoriasElegidas.some(([, v]) => Number(v) <= 0)) {
-      setError('Selecciona al menos una categoría e ingresa su cantidad.')
+      setError('Ingresa la cantidad de al menos una categoría.')
       return
     }
 
@@ -309,32 +301,20 @@ export function EventoForm({
         <legend className="px-2 text-sm font-bold text-text-secondary">
           Categorías y cantidades *
         </legend>
-        {categorias.map((c) => {
-          const checked = c.id in cants
-          return (
-            <div key={c.id} className="flex items-center justify-between gap-3">
-              <label className="flex items-center gap-2.5 text-base text-text-primary">
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => toggleCat(c.id)}
-                  className="h-5 w-5 accent-[--color-brand-primary]"
-                />
-                {c.nombre}
-              </label>
-              {checked && (
-                <input
-                  type="number"
-                  min={1}
-                  value={cants[c.id]}
-                  onChange={(e) => setCants((x) => ({ ...x, [c.id]: e.target.value }))}
-                  className="h-10 w-24 rounded-lg border border-border px-3 text-right text-base"
-                  aria-label={`Cantidad de ${c.nombre}`}
-                />
-              )}
-            </div>
-          )
-        })}
+        {categorias.map((c) => (
+          <div key={c.id} className="flex min-h-[60px] items-center justify-between gap-3">
+            <span className="text-base text-text-primary">{c.nombre}</span>
+            <input
+              type="number"
+              min={0}
+              placeholder="00"
+              value={cants[c.id] ?? ''}
+              onChange={(e) => setCants((x) => ({ ...x, [c.id]: e.target.value }))}
+              className="size-[50px] rounded-xl border-2 border-brand-primary bg-white text-center text-lg text-text-primary placeholder:text-placeholder focus:border-brand-secondary focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              aria-label={`Cantidad de ${c.nombre}`}
+            />
+          </div>
+        ))}
       </fieldset>
 
       {dupWarning && (

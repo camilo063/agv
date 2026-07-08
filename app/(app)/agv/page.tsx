@@ -198,8 +198,9 @@ export default async function DashboardInternoPage({
 
         {/* ——— Sección 3: tabla general de predios ——— */}
         {filasPagina.length === 0 ? (
-          <section className="mt-6 rounded-2xl border border-border bg-white p-8 text-center">
-            <p className="text-sm text-text-secondary">No se encontraron predios</p>
+          <section className="mt-6 flex flex-col items-center gap-3 rounded-[20px] border border-border bg-white p-10 text-center">
+            <Image src="/icono-jeringa-gris.svg" alt="" width={64} height={64} aria-hidden="true" />
+            <p className="text-base font-bold text-text-secondary">No se encontraron predios</p>
           </section>
         ) : (
           <section className="mt-6 overflow-x-auto rounded-2xl border border-border bg-white">

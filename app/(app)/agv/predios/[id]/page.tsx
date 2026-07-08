@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import React from 'react'
@@ -6,6 +7,7 @@ import { getCurrentUser } from '../../../../../lib/auth'
 import { formatoFecha, idOf, mapaEstados } from '../../../../../lib/estadoEventos'
 import type { EstadoEvento } from '../../../../../lib/reglas'
 import type { Evento, Predio, TiposExplotacion, User, Zona } from '../../../../../payload-types'
+import { botonCls } from '../../../components/Button'
 import { Chip } from '../../../components/Chip'
 import { HeaderInterno } from '../../components/HeaderInterno'
 import { AccionesPredio } from './AccionesPredio'
@@ -166,69 +168,89 @@ export default async function DetallePredioPage({ params }: { params: Promise<{ 
               puedeEditar: puedeGestionar,
             }))
 
+            /* Card detail event — specs del Figma (38:472): radio 20, p-20,
+               ícono jeringa 24 + tipo 18 bold, pares "Etiqueta: valor" en 14
+               (label bold text-secondary / valor text-primary), categorías como
+               chips neutros "Vacas (25)" y acciones SM centradas. Variante
+               "Sin registros": ícono gris + "Sin Registro aún" + botón primario. */
             return (
-              <article key={t.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-base font-bold text-text-primary">{t.nombre}</h2>
+              <article
+                key={t.id}
+                className="flex flex-col gap-2 rounded-[20px] border border-border bg-white p-5"
+              >
+                <div className="flex items-center gap-1 py-2">
+                  <Image
+                    src={vigente ? '/icono-jeringa.svg' : '/icono-jeringa-gris.svg'}
+                    alt=""
+                    width={24}
+                    height={24}
+                    aria-hidden="true"
+                  />
+                  <h2 className="flex-1 truncate text-lg font-bold text-text-primary">{t.nombre}</h2>
                   <Chip estado={r.estado} />
                 </div>
 
                 {vigente ? (
-                  <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-                    <dt className="text-text-secondary">Último registro</dt>
-                    <dd className="text-right font-bold text-text-primary">
-                      {formatoFecha(vigente.fecha)}
-                    </dd>
-                    <dt className="text-text-secondary">Producto</dt>
-                    <dd className="text-right font-bold text-text-primary">
-                      {nombreDe(vigente.producto) || vigente.otraMarcaNombre || 'Otra marca'}
-                    </dd>
-                    <dt className="text-text-secondary">Categorías</dt>
-                    <dd className="text-right text-text-primary">
-                      {(vigente.categorias ?? [])
-                        .map((c) => `${nombreDe(c.categoria)}: ${c.cantidad}`)
-                        .join(', ') || '—'}
-                    </dd>
-                    <dt className="text-text-secondary">Próximo evento</dt>
-                    <dd className="text-right font-bold text-text-primary">
-                      {vigente.proximaFecha ? formatoFecha(vigente.proximaFecha) : 'Sin recordatorio'}
-                    </dd>
-                  </dl>
+                  <>
+                    <p className="flex gap-2.5 text-sm">
+                      <span className="font-bold text-text-secondary">Último registro:</span>
+                      <span className="text-text-primary">{formatoFecha(vigente.fecha)}</span>
+                    </p>
+                    <p className="flex gap-2.5 text-sm">
+                      <span className="font-bold text-text-secondary">Producto:</span>
+                      <span className="text-text-primary">
+                        {nombreDe(vigente.producto) || vigente.otraMarcaNombre || 'Otra marca'}
+                      </span>
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 py-2">
+                      {(vigente.categorias ?? []).map((c, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex rounded-full bg-neutral-bg px-2 py-0.5 text-sm font-bold text-neutral-text"
+                        >
+                          {nombreDe(c.categoria)} ({c.cantidad})
+                        </span>
+                      ))}
+                    </div>
+                    <p className="flex gap-2.5 text-sm">
+                      <span className="font-bold text-text-secondary">Próximo evento:</span>
+                      <span className="text-text-primary">
+                        {vigente.proximaFecha ? formatoFecha(vigente.proximaFecha) : 'Sin recordatorio'}
+                      </span>
+                    </p>
+                    <div className="mt-auto flex items-center justify-center gap-4 py-2">
+                      {/* "Ver historial" oculto si Sin registro (flujo). */}
+                      <HistorialTipo tipo={t.nombre} filas={filas} />
+                      {puedeGestionar &&
+                        (r.estado === 'activo' ? (
+                          <Link href={`/eventos/${vigente.id}/editar`} className={botonCls('primary', 'sm')}>
+                            Editar evento
+                          </Link>
+                        ) : (
+                          <Link
+                            href={`/eventos/${vigente.id}/actualizar`}
+                            className={botonCls('primary', 'sm')}
+                          >
+                            Actualizar evento
+                          </Link>
+                        ))}
+                    </div>
+                  </>
                 ) : (
-                  <p className="text-sm text-text-secondary">Sin registros de este tipo.</p>
+                  <>
+                    <p className="text-sm font-bold text-text-secondary">Sin Registro aún</p>
+                    {puedeGestionar && (
+                      <div className="flex justify-center py-2">
+                        <Link
+                          href={`/eventos/nuevo?predio=${id}&tipo=${t.id}`}
+                          className={botonCls('primary', 'sm')}
+                        >
+                          Registrar evento
+                        </Link>
+                      </div>
+                    )}
+                  </>
                 )}
-
-                <div className="mt-auto flex items-center justify-between pt-2">
-                  {/* "Ver historial" oculto si Sin registro (flujo). */}
-                  <HistorialTipo tipo={t.nombre} filas={filas} />
-                  {puedeGestionar &&
-                    (r.estado === 'sin_registro' ? (
-                      <Link
-                        href={`/eventos/nuevo?predio=${id}&tipo=${t.id}`}
-                        className="rounded-lg bg-neutral-bg px-3 py-1.5 text-sm font-bold text-neutral-text"
-                      >
-                        + Registrar evento
-                      </Link>
-                    ) : r.estado === 'activo' ? (
-                      <Link
-                        href={`/eventos/${vigente?.id}/editar`}
-                        className="rounded-lg bg-brand-light px-3 py-1.5 text-sm font-bold text-brand-primary"
-                      >
-                        Editar evento
-                      </Link>
-                    ) : (
-                      <Link
-                        href={`/eventos/${vigente?.id}/actualizar`}
-                        className={`rounded-lg px-3 py-1.5 text-sm font-bold ${
-                          r.estado === 'vencido'
-                            ? 'bg-error-bg text-error-text'
-                            : 'bg-warning-bg text-warning-text'
-                        }`}
-                      >
-                        Actualizar evento
-                      </Link>
-                    ))}
-                </div>
               </article>
             )
           })}

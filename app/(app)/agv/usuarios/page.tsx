@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React from 'react'
@@ -75,8 +76,9 @@ export default async function UsuariosInternoPage({
         </div>
 
         {res.docs.length === 0 ? (
-          <section className="mt-6 rounded-2xl border border-border bg-white p-8 text-center">
-            <p className="text-sm text-text-secondary">No se encontraron usuarios</p>
+          <section className="mt-6 flex flex-col items-center gap-3 rounded-[20px] border border-border bg-white p-10 text-center">
+            <Image src="/icono-usuario.svg" alt="" width={56} height={56} aria-hidden="true" />
+            <p className="text-base font-bold text-text-secondary">No se encontraron usuarios</p>
           </section>
         ) : (
           <section className="mt-6 overflow-x-auto rounded-2xl border border-border bg-white">
