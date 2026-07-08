@@ -37,6 +37,10 @@ export default buildConfig({
     // Admin en /agv; login automático en /agv/login (URLs separadas del front UE).
     importMap: { baseDir: path.resolve(dirname) },
     meta: { titleSuffix: '— AGV Salud Animal' },
+    components: {
+      // Atajo /cms → /agv en el header (contraparte del "CMS ↗" del HeaderInterno).
+      actions: ['/components/cms/PanelInternoLink#PanelInternoLink'],
+    },
     // TODO(theming): logo + paleta ligeros del admin (RG-5). Tailwind NO aplica al admin.
   },
   // Back-office técnico (UI nativa de Payload) en /cms — SOLO UAGV.

@@ -44,6 +44,19 @@ export function HeaderInterno({
       </div>
 
       <div className="flex items-center gap-3 pr-6">
+        {/* Acceso cruzado al back-office (/cms) — sutil, solo UAGV, pestaña nueva.
+            No hace parte del Figma aprobado: es un atajo operativo discreto. */}
+        {esAdmin && (
+          <a
+            href="/cms"
+            target="_blank"
+            rel="noopener"
+            title="Abrir back-office (CMS) en una pestaña nueva"
+            className="text-sm text-text-secondary underline-offset-2 hover:text-brand-primary hover:underline"
+          >
+            CMS ↗
+          </a>
+        )}
         <Image src="/icono-usuario.svg" alt="" width={28} height={28} aria-hidden="true" />
         <span className="text-sm text-text-secondary">{nombre}</span>
         <LogoutInterno />
