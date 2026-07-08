@@ -34,7 +34,9 @@
     "@payloadcms/next": "3.85.1",
     "@payloadcms/richtext-lexical": "3.85.1",
     "@payloadcms/storage-vercel-blob": "3.85.1",
+    "@vercel/analytics": "1.5.0",
     "cross-env": "10.1.0",
+    "exceljs": "4.4.0",
     "graphql": "16.14.2",
     "next": "16.2.9",
     "payload": "3.85.1",
@@ -58,6 +60,6 @@
     "typescript": "Pineado en 5.9.3 (no 6.x): typescript-eslint@8 que trae eslint-config-next aún no soporta TS 6 de forma estable. Subir cuando la cadena de lint lo soporte.",
     "eslint": "Pineado en 9.x (no 10.x) por la misma razón de compatibilidad de plugins.",
     "futuro-s3": "Para migrar storage a AWS S3 (ver lib/storage.ts y README): pnpm add @payloadcms/storage-s3 @aws-sdk/client-s3 @aws-sdk/lib-storage",
-    "futuro-pwa": "Serwist (service worker) pendiente de integrar — ver README §PWA. Manifest ya incluido (app/(app)/manifest.ts)."
+    "futuro-pwa": "SW mínimo en public/sw.js (sin offline). Migrar a Serwist cuando @serwist/next soporte builds Turbopack de Next 16."
   }
 }

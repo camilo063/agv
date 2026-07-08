@@ -1,5 +1,6 @@
 import type { Endpoint } from 'payload'
 
+import { responderExport } from '../lib/exportar'
 import { construirTablaPredios } from '../lib/tablaPredios'
 import type { User } from '../payload-types'
 
@@ -35,11 +36,6 @@ export const tablaPrediosCsv: Endpoint = {
       tipoEvento: g('tipoEvento'),
     })
 
-    const esc = (v: unknown) => {
-      const s = String(v ?? '')
-      return /[",\n;]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s
-    }
-
     const cabecera = [
       'Predio',
       'Responsable',
@@ -49,24 +45,22 @@ export const tablaPrediosCsv: Endpoint = {
       ...tabla.tipos.flatMap((t) => [`${t.nombre} — Producto`, `${t.nombre} — Último reg.`, `${t.nombre} — Estado`]),
     ]
     const filas = tabla.filas.map((f) => [
-      esc(f.nombre),
-      esc(f.responsable),
-      esc(f.departamento),
-      esc(f.repZona),
+      f.nombre,
+      f.responsable,
+      f.departamento,
+      f.repZona,
       f.habilitado ? 'Sí' : 'No',
       ...tabla.tipos.flatMap((t) => {
         const c = f.porTipo[t.id]
-        return [esc(c?.producto), esc(c?.fecha), ETIQUETA[c?.estado ?? 'sin_registro']]
+        return [c?.producto ?? '', c?.fecha ?? '', ETIQUETA[c?.estado ?? 'sin_registro']]
       }),
     ])
 
-    const csv = [cabecera.join(','), ...filas.map((f) => f.join(','))].join('\n')
-    return new Response(`﻿${csv}`, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="predios-agv.csv"',
-      },
-    })
+    return responderExport(
+      'predios-agv',
+      cabecera,
+      filas,
+      req.searchParams?.get('formato') ?? undefined,
+    )
   },
 }

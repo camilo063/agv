@@ -6,9 +6,12 @@ el admin (**Payload 3.x**) y el front del ganadero, en un mismo repo y deploy.
 > 🚀 **Producción (Vercel + Neon):** https://agv-gray.vercel.app
 > `/login` (ganadero) · `/agv/login` (interno) · `/cms` (back-office, solo UAGV).
 >
-> ✅ **Estado: TODOS los flujos del board (`docs/07-flujos.md`) implementados y verificados
-> E2E** — A (11 flujos UE) · B (6 UAGV) · C (2 URT). Pendiente: 2º entregable de diseño
-> (ajuste visual de forms internos), RESEND_API_KEY del cliente y pulido (Serwist, rate-limit).
+> ✅ **Estado: DESARROLLO CERRADO.** Todos los flujos del board (`docs/07-flujos.md`)
+> implementados y verificados E2E — A (11 UE) · B (6 UAGV) · C (2 URT) — con fidelidad
+> pixel-perfect al Figma canónico (design system extraído por nodo). Deudas técnicas
+> cerradas: rate-limit del registro, ubicación real por geo-headers, export CSV+Excel,
+> service worker PWA, theming /cms, Web Analytics. Pendiente SOLO de decisiones del
+> cliente: D-2 (mapeo inferencia), D-3 (protección de dominio), D-8 (infra prod).
 
 - **Cliente:** AGV Salud Animal · **Proveedor:** Nivelics SAS · **Idioma:** español (Colombia).
 - **Fuente de verdad contractual:** `docs/00`–`docs/09` + `theme/design-tokens.css`. Donde el
@@ -240,9 +243,18 @@ hay diff) → `build`. Secrets nunca en el repo.
   `// TODO(2º entregable)` (p. ej. `EmailTemplates`, `Zonas`, `Media`). **No se inventan campos.**
 - Dashboards custom HU-13/14 (stats) y exportación de BD: pendientes.
 
-### Otros TODO técnicos
-- Registro público del UE (HU-01) — create público/endpoint con validaciones.
-- Sesión única (HU-1.4), captura de dispositivo (HU-1.2).
-- Validación NIT (dígito de verificación), "Otra marca" (nombre obligatorio).
-- Constraint de zona para `Eventos` vía el predio relacionado.
-- Serwist (PWA SW). `cacheComponents`/PPR cuando Payload lo soporte.
+### Deudas técnicas — CERRADAS
+- ✅ Registro público (HU-01) con rate-limit (5/hora por IP, `lib/rateLimit.ts`;
+  para límite global distribuido, regla de Vercel WAF).
+- ✅ Sesión única (HU-1.4) y dispositivo (HU-1.2) con CIUDAD REAL vía headers
+  geo de Vercel (`x-vercel-ip-city/country`; fallback zona horaria en local).
+- ✅ Export **CSV y Excel** (`?formato=xlsx`, exceljs) en usuarios y predios.
+- ✅ Service worker PWA (instalable, SIN offline). **Desviación documentada del
+  stack**: docs/00 A.1 pide Serwist, pero `@serwist/next` requiere builds
+  webpack y Next 16 compila con Turbopack → SW mínimo equivalente
+  (`public/sw.js`); migrar a Serwist cuando soporte Turbopack.
+- ✅ Theming ligero del `/cms` (paleta verde AGV — RG-5).
+- ✅ Confirmación de cierre de sesión en panel interno (flujo UAGV).
+- ✅ Monitoreo: Vercel **Web Analytics** habilitado (`@vercel/analytics`).
+- Restante consciente: `cacheComponents`/PPR cuando Payload lo soporte;
+  estado materializado si la tabla supera 500 predios (aviso explícito hoy).

@@ -19,9 +19,9 @@ const nextConfig = {
   // (revalidateTag/revalidatePath en hooks de colecciones). Ver hooks/revalidate.ts.
   // TODO(cache): evaluar cacheComponents cuando Payload lo soporte de forma estable.
 
-  // TODO(PWA): integrar Serwist (service worker, SIN offline) envolviendo este
-  // config con `withSerwist` de @serwist/next. Ver README §PWA. El manifest ya
-  // se sirve desde app/(app)/manifest.ts.
+  // PWA: manifest en app/(app)/manifest.ts + SW mínimo en public/sw.js (sin
+  // offline). Serwist queda pospuesto: @serwist/next exige webpack y Next 16
+  // compila con Turbopack (desviación documentada en README §Deudas).
 }
 
 // `devBundleServerPackages: false` evita rebundlear paquetes de servidor en dev.

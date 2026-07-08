@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react'
    - Usuario Externo: Nombre*, Teléfono*, Email*, doc opcional, Contraseña* +
      Confirmar* (el admin la define y la comunica; HU-11.1).
    Al crear un UE: "¿Desea registrar un predio para este usuario?" (flujo).
-   TODO(2º entregable): ajuste visual definitivo del formulario cuando llegue el diseño. */
+   Campos por rol según docs/07-flujos.md + Figma Usuario Interno (entregado). */
 
 type Rol = '' | 'UAGV' | 'URT' | 'UE'
 type Zona = { id: string; nombre: string }

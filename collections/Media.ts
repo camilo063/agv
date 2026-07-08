@@ -8,8 +8,8 @@ import { autenticado, soloAdmin } from '../access/soloAdmin'
  *    colección ni el código de la app. Payload sirve por ruta estática y preserva
  *    el access control (la app nunca referencia URLs del proveedor).
  *
- * TODO(2º entregable): definir uso real (fotos de ganado/predios), tamaños/recortes
- * y el access definitivo. De momento, lectura para autenticados.
+ * NOTA: ninguna HU del MVP requiere carga de imágenes; la colección queda lista
+ * para cuando se necesite (definir tamaños/recortes y reintroducir sharp).
  */
 export const Media: CollectionConfig = {
   slug: 'media',

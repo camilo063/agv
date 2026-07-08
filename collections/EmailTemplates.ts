@@ -7,8 +7,8 @@ import { revalidateTagHook, revalidateDeleteHook } from '../hooks/revalidate'
  * Lectura solo admin/servidor (no es contenido público). El job de recordatorios
  * resuelve la plantilla por `clave`.
  *
- * TODO(2º entregable): set de campos definitivo (variables disponibles, HTML vs texto,
- * versionado). De momento, lo mínimo para los 2 correos de HU-09.
+ * Campos: los que usan los 2 correos de HU-09 (clave/asunto/cuerpo con variables
+ * {{nombre}} {{predio}} {{tipo}} {{producto}} {{fecha}} {{enlace}}).
  */
 export const EmailTemplates: CollectionConfig = {
   slug: 'email-templates',

@@ -2,10 +2,9 @@
  * Detección de dispositivo en el CLIENTE (HU-1.2): SO, navegador y ubicación
  * aproximada. Se envía al login y el servidor la persiste en Users.dispositivo.
  *
- * Ubicación aproximada: se usa la zona horaria del navegador (p. ej.
- * "America/Bogota") — no requiere permisos ni servicios externos.
- * TODO(HU-1.2): si el cliente exige ciudad real (ej. "Bogotá"), definir servicio
- * de geolocalización por IP (dependencia externa no especificada en las HU).
+ * Ubicación: el SERVIDOR la resuelve con los headers de geolocalización de
+ * Vercel (ciudad/país reales — endpoints/sesion.ts); esta zona horaria del
+ * navegador es solo el fallback para local/otros hostings.
  */
 export type Dispositivo = { so: string; navegador: string; ubicacion: string }
 

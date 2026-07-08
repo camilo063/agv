@@ -1,10 +1,12 @@
 /* Front del ganadero (UE) — root layout del grupo (app). Independiente del admin:
    son dos root layouts (route groups hermanos, sin app/layout.tsx compartido).
    Mobile-first 412px (08-diseno-y-prototipos.md). PWA instalable, SIN offline. */
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Baloo_2 } from 'next/font/google'
 import React from 'react'
 
+import { RegistroSW } from './components/RegistroSW'
 import './styles/globals.css'
 
 /* D-9 CERRADA: el Figma usa "Arial Rounded MT Bold" (propietaria de Monotype,
@@ -34,7 +36,12 @@ export const viewport: Viewport = {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={baloo.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* PWA: SW mínimo (sin offline) + Web Analytics (monitoreo de uso). */}
+        <RegistroSW />
+        <Analytics />
+      </body>
     </html>
   )
 }

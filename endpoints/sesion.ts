@@ -123,7 +123,14 @@ export const sesionLoginEndpoint: Endpoint = {
     }
 
     // Sesión ÚNICA: conserva solo la recién creada e invalida cualquier anterior.
-    // Captura de dispositivo (HU-1.2) del login exitoso.
+    // Captura de dispositivo (HU-1.2): SO/navegador del cliente + UBICACIÓN
+    // APROXIMADA real por los headers de geolocalización de la plataforma
+    // (x-vercel-ip-city/country — sin servicios externos); fallback: zona
+    // horaria del navegador en local/otros hostings.
+    const ciudad = decodeURIComponent(req.headers.get('x-vercel-ip-city') ?? '')
+    const pais = req.headers.get('x-vercel-ip-country') ?? ''
+    const ubicacion =
+      [ciudad, pais].filter(Boolean).join(', ') || dispositivo.ubicacion || null
     await payload.update({
       collection: 'users',
       id: actual.id,
@@ -132,7 +139,7 @@ export const sesionLoginEndpoint: Endpoint = {
         dispositivo: {
           so: dispositivo.so ?? null,
           navegador: dispositivo.navegador ?? null,
-          ubicacion: dispositivo.ubicacion ?? null,
+          ubicacion,
         },
       },
       overrideAccess: true,

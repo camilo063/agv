@@ -38,8 +38,8 @@ const validarPerfil: CollectionBeforeValidateHook = ({ data, originalDoc, operat
 
 /**
  * Users — UAGV / URT / UE. Auth de Payload (identificador = email, decisión cerrada).
- * Solo se modelan campos definidos explícitamente por las HU (HU-01, HU-02, HU-11.1).
- * Los formularios de gestión interna del admin son 2º entregable: NO inventar campos.
+ * Campos definidos por las HU (HU-01, HU-02, HU-11.1) y los flujos de gestión
+ * interna (docs/07-flujos.md) — set completo entregado e implementado.
  */
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -115,7 +115,7 @@ export const Users: CollectionConfig = {
     {
       name: 'numeroDocumento',
       type: 'text',
-      // TODO(HU-01): validar longitud y dígito de verificación si tipoDocumento = NIT.
+      // Longitud y dígito de verificación (NIT) validados en validarPerfil (arriba).
     },
     { name: 'cargo', type: 'text', admin: { description: 'Solo personal interno (UAGV/URT)' } },
     {

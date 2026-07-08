@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import type { Endpoint, PayloadRequest } from 'payload'
 
+import { excedeLimite, ipDe } from '../lib/rateLimit'
 import {
   esEmailValido,
   esPasswordValida,
@@ -22,7 +23,8 @@ import {
  *
  * GET /api/verificar-email?token=… marca `emailVerificado` y redirige al login.
  *
- * TODO(hardening): rate-limit/captcha del endpoint público antes de producción.
+ * Hardening: rate-limit de ventana deslizante por IP (lib/rateLimit — 5 registros
+ * por hora por IP); para límite global distribuido, regla de Vercel WAF.
  * TODO(copy): texto definitivo del correo de verificación (no especificado en HU).
  */
 async function readBody(req: PayloadRequest): Promise<Record<string, unknown>> {
@@ -40,6 +42,14 @@ const registrar: Endpoint = {
   path: '/registro',
   method: 'post',
   handler: async (req) => {
+    // Hardening HU-01: máx. 5 registros/hora por IP (disuasión de abuso).
+    if (excedeLimite(`registro:${ipDe(req)}`, 5, 60 * 60 * 1000)) {
+      return Response.json(
+        { errores: { general: 'Demasiados intentos. Intenta de nuevo más tarde.' } },
+        { status: 429 },
+      )
+    }
+
     const body = await readBody(req)
     const nombre = String(body.nombre ?? '').trim()
     const telefono = String(body.telefono ?? '').trim()

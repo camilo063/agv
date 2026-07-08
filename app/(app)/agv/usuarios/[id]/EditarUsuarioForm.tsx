@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 /* Detalle / edición de usuario (HU-11): formulario precargado según rol.
    PATCH /api/users/:id (access UAGV). Incluye "Restablecer contraseña"
    (HU-11.4: el admin define la nueva directamente, modal con confirmación).
-   TODO(2º entregable): ajuste visual definitivo cuando llegue el diseño. */
+   Campos por rol según docs/07-flujos.md + Figma Usuario Interno (entregado). */
 
 type Zona = { id: string; nombre: string }
 

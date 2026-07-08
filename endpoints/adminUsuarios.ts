@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import type { Endpoint, PayloadRequest } from 'payload'
 
+import { responderExport } from '../lib/exportar'
 import { construirWhereUsuarios, ROL_LABEL } from '../lib/usuariosWhere'
 import {
   esEmailValido,
@@ -20,8 +21,8 @@ import {
  *  - Usuario Externo: Nombre*, Teléfono*, Email*, doc opcional, Contraseña*
  *    definida por el admin (HU-11.1: se la comunica por el canal que prefiera).
  *
- * GET /api/admin/usuarios-csv — HU-11.5: exportación CSV respetando los
- * filtros activos (rol, estado, buscador).
+ * GET /api/admin/usuarios-csv — HU-11.5: exportación CSV o Excel
+ * (?formato=xlsx) respetando los filtros activos (rol, estado, buscador).
  */
 async function readBody(req: PayloadRequest): Promise<Record<string, unknown>> {
   if (typeof req.json === 'function') {
@@ -155,32 +156,22 @@ const usuariosCsv: Endpoint = {
       overrideAccess: true,
     })
 
-    const esc = (v: unknown) => {
-      const s = String(v ?? '')
-      return /[",\n;]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s
-    }
-    const filas = [
-      ['Nombre', 'Email', 'Cargo', 'Rol', 'Estado', 'Teléfono', 'Documento'].join(','),
-      ...docs.map((u) =>
-        [
-          esc(u.nombre),
-          esc(u.email),
-          esc(u.cargo),
-          esc(ROL_LABEL[u.role] ?? u.role),
-          u.activo ? 'Activo' : 'Inactivo',
-          esc(u.telefono),
-          esc(u.tipoDocumento ? `${u.tipoDocumento} ${u.numeroDocumento ?? ''}`.trim() : ''),
-        ].join(','),
-      ),
-    ]
+    const filas = docs.map((u) => [
+      String(u.nombre ?? ''),
+      String(u.email ?? ''),
+      String(u.cargo ?? ''),
+      String(ROL_LABEL[u.role] ?? u.role),
+      u.activo ? 'Activo' : 'Inactivo',
+      String(u.telefono ?? ''),
+      u.tipoDocumento ? `${u.tipoDocumento} ${u.numeroDocumento ?? ''}`.trim() : '',
+    ])
 
-    return new Response(`﻿${filas.join('\n')}`, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="usuarios-agv.csv"',
-      },
-    })
+    return responderExport(
+      'usuarios-agv',
+      ['Nombre', 'Email', 'Cargo', 'Rol', 'Estado', 'Teléfono', 'Documento'],
+      filas,
+      req.searchParams?.get('formato') ?? undefined,
+    )
   },
 }
 

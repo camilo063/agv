@@ -1,3 +1,27 @@
-/* Theming ligero del admin de Payload (RG-5): logo/colores de marca AGV.
-   NO se persigue fidelidad total del sistema de diseño en el admin (R-4).
-   TODO(theming): inyectar paleta de marca (--color-brand-*) y logo cuando se cierre D-10. */
+/* Theming ligero del back-office de Payload (RG-5): paleta de marca AGV.
+   Solo colores/acentos — la UI nativa se conserva (riesgo R-4 acordado).
+   Variables del theme de Payload: https://payloadcms.com/docs/admin/customizing-css */
+
+:root {
+  --theme-success-500: #69961f;
+  --color-success-500: #69961f;
+}
+
+html[data-theme='light'] {
+  /* Acento principal (botones primarios, enlaces activos, focos). */
+  --theme-elevation-1000: #212121;
+  --color-blue-500: #69961f;
+  --theme-success-500: #69961f;
+}
+
+/* Botones primarios y elementos de acción del admin en verde AGV. */
+.btn--style-primary {
+  --color: #fff;
+  --bg-color: #69961f;
+  --hover-bg: #95c11e;
+}
+
+.nav__link--active,
+.nav-group__toggle--open {
+  color: #69961f;
+}

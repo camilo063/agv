@@ -25,6 +25,5 @@ export const Zonas: CollectionConfig = {
   },
   fields: [
     { name: 'nombre', type: 'text', required: true, admin: { description: 'Departamento / zona.' } },
-    // TODO(2º entregable): set de campos completo de Zonas (si aplica jerarquía, código DANE, etc.).
   ],
 }
