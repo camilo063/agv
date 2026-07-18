@@ -14,6 +14,8 @@ export const dynamic = 'force-dynamic'
 export default async function PerfilPage() {
   const { user } = await getCurrentUser()
   if (!user) redirect('/login')
+  // Control por rol (QA Hallazgos Generales #1): la zona de usuario es del UE.
+  if (user.role !== 'UE') redirect('/agv')
 
   const initial: PerfilInitial = {
     id: String(user.id),

@@ -36,7 +36,9 @@ export const viewport: Viewport = {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={baloo.variable}>
-      <body>
+      {/* Fondo gris en desktop: enmarca la columna mobile 412px del UE
+          (responsive desktop — QA HU-01). En mobile no cambia nada. */}
+      <body className="md:bg-surface">
         {children}
         {/* PWA: SW mínimo (sin offline) + Web Analytics (monitoreo de uso). */}
         <RegistroSW />

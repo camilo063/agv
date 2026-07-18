@@ -36,11 +36,16 @@ export function EventoForm({
   predioInicial,
   tipoInicial,
   editar,
+  volverA,
 }: {
   predioInicial?: string
   tipoInicial?: string
   editar?: EventoEditar
+  /* Flujo admin (HU-12-5): destino de "volver" hacia el panel interno. Sin él,
+     los retornos van al inicio del UE (/dashboard). */
+  volverA?: string
 }) {
+  const inicio = volverA ?? '/dashboard'
   const [predios, setPredios] = useState<Opcion[]>([])
   const [tipos, setTipos] = useState<Opcion[]>([])
   const [categorias, setCategorias] = useState<Opcion[]>([])
@@ -54,6 +59,7 @@ export function EventoForm({
   const [cants, setCants] = useState<Record<string, string>>(editar?.cants ?? {}) // catId → cantidad
 
   const [error, setError] = useState<string | null>(null)
+  const [errores, setErrores] = useState<Record<string, string>>({})
   const [dupWarning, setDupWarning] = useState(false)
   const [loading, setLoading] = useState(false)
   const [exito, setExito] = useState<{ proximaFecha: string | null } | null>(null)
@@ -129,16 +135,19 @@ export function EventoForm({
     e.preventDefault()
     setError(null)
 
-    if (!predio || !fecha || !tipo || !producto) {
-      setError('Completa los campos obligatorios (*).')
-      return
-    }
-    if (producto === OTRA_MARCA && !otraMarcaNombre.trim()) {
-      setError('Para "Otra marca" debes ingresar el nombre del producto.')
-      return
-    }
-    if (categoriasElegidas.length === 0 || categoriasElegidas.some(([, v]) => Number(v) <= 0)) {
-      setError('Ingresa la cantidad de al menos una categoría.')
+    // Mensajes descriptivos EN el campo (QA HU-05): uno por cada obligatorio.
+    const errs: Record<string, string> = {}
+    if (!predio) errs.predio = 'Selecciona el predio.'
+    if (!fecha) errs.fecha = 'Ingresa la fecha en que se aplicó el tratamiento.'
+    if (!tipo) errs.tipo = 'Selecciona el tipo de evento.'
+    if (tipo && !producto) errs.producto = 'Selecciona el producto aplicado.'
+    if (producto === OTRA_MARCA && !otraMarcaNombre.trim())
+      errs.otraMarca = 'Ingresa el nombre del producto aplicado.'
+    if (categoriasElegidas.length === 0 || categoriasElegidas.some(([, v]) => Number(v) <= 0))
+      errs.categorias = 'Ingresa la cantidad de animales de al menos una categoría.'
+    setErrores(errs)
+    if (Object.keys(errs).length > 0) {
+      setError('Revisa los campos marcados e intenta de nuevo.')
       return
     }
 
@@ -167,7 +176,16 @@ export function EventoForm({
       })
       if (!res.ok) {
         const j = await res.json().catch(() => null)
-        setError(j?.errors?.[0]?.message ?? 'No se pudo guardar el evento.')
+        const msg = j?.errors?.[0]?.message as string | undefined
+        // Los errores del servidor se muestran en ESPAÑOL y con causa concreta
+        // (QA HU-05: antes salía el "You are not allowed…" crudo de Payload).
+        setError(
+          res.status === 401 || res.status === 403
+            ? 'Tu sesión expiró o no tienes permiso para esta acción. Vuelve a iniciar sesión.'
+            : msg && !/not allowed/i.test(msg)
+              ? msg
+              : 'No se pudo guardar el evento. Revisa los datos e intenta de nuevo.',
+        )
         return
       }
       const j = await res.json()
@@ -206,8 +224,10 @@ export function EventoForm({
             : 'Este producto no programa recordatorio automático'}
         </p>
         <div className="mt-4 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/dashboard" className={botonCls('secondary', 'md', 'min-w-[150px]')}>
-            Ir al dashboard
+          {/* "Ir al inicio", no "ir al dashboard" (QA HU-05). En flujo admin
+              vuelve al panel interno (QA HU-12-5). */}
+          <Link href={inicio} className={botonCls('secondary', 'md', 'min-w-[150px]')}>
+            {volverA ? 'Volver al panel' : 'Ir al inicio'}
           </Link>
           {!editar && (
             <Button size="md" className="min-w-[150px]" onClick={reset}>
@@ -223,19 +243,27 @@ export function EventoForm({
     'input-agv'
   const labelCls = 'flex flex-col gap-1.5'
   const labelSpan = 'label-agv'
+  const errCls = 'text-xs font-bold text-error-text'
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      {/* HU-06 (QA): en EDICIÓN, Predio y Tipo de evento NO son editables. */}
       <label className={labelCls}>
         <span className={labelSpan}>Predio *</span>
-        <select className={inputCls} value={predio} onChange={(e) => setPredio(e.target.value)} required>
-          <option value="">Selecciona…</option>
+        <select
+          className={`${inputCls} ${editar ? 'pointer-events-none bg-surface text-placeholder' : ''}`}
+          value={predio}
+          onChange={(e) => setPredio(e.target.value)}
+          disabled={Boolean(editar)}
+        >
+          <option value="">Selecciona el predio</option>
           {predios.map((p) => (
             <option key={p.id} value={p.id}>
               {p.nombre}
             </option>
           ))}
         </select>
+        {errores.predio && <span className={errCls}>{errores.predio}</span>}
       </label>
 
       <label className={labelCls}>
@@ -245,20 +273,26 @@ export function EventoForm({
           className={inputCls}
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          required
         />
+        {errores.fecha && <span className={errCls}>{errores.fecha}</span>}
       </label>
 
       <label className={labelCls}>
         <span className={labelSpan}>Tipo de evento *</span>
-        <select className={inputCls} value={tipo} onChange={(e) => cambiarTipo(e.target.value)} required>
-          <option value="">Selecciona…</option>
+        <select
+          className={`${inputCls} ${editar ? 'pointer-events-none bg-surface text-placeholder' : ''}`}
+          value={tipo}
+          onChange={(e) => cambiarTipo(e.target.value)}
+          disabled={Boolean(editar)}
+        >
+          <option value="">Selecciona el tipo de evento</option>
           {tipos.map((t) => (
             <option key={t.id} value={t.id}>
               {t.nombre}
             </option>
           ))}
         </select>
+        {errores.tipo && <span className={errCls}>{errores.tipo}</span>}
       </label>
 
       {tipo && (
@@ -268,9 +302,8 @@ export function EventoForm({
             className={inputCls}
             value={producto}
             onChange={(e) => setProducto(e.target.value)}
-            required
           >
-            <option value="">Selecciona…</option>
+            <option value="">Selecciona el producto aplicado</option>
             {productos.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.nombre}
@@ -278,6 +311,7 @@ export function EventoForm({
             ))}
             <option value={OTRA_MARCA}>Otra marca</option>
           </select>
+          {errores.producto && <span className={errCls}>{errores.producto}</span>}
         </label>
       )}
 
@@ -289,11 +323,9 @@ export function EventoForm({
             value={otraMarcaNombre}
             onChange={(e) => setOtraMarcaNombre(e.target.value)}
             placeholder="Marca y nombre del producto aplicado"
-            required
           />
-          <span className="text-xs text-text-secondary">
-            Los productos de otra marca no programan recordatorio automático.
-          </span>
+          {/* El aviso "no programa recordatorio" NO se muestra al usuario (QA HU-05). */}
+          {errores.otraMarca && <span className={errCls}>{errores.otraMarca}</span>}
         </label>
       )}
 
@@ -315,6 +347,7 @@ export function EventoForm({
             />
           </div>
         ))}
+        {errores.categorias && <span className={errCls}>{errores.categorias}</span>}
       </fieldset>
 
       {dupWarning && (
@@ -333,7 +366,7 @@ export function EventoForm({
           {loading ? 'Guardando…' : 'Guardar'}
         </Button>
         <Link
-          href="/dashboard"
+          href={inicio}
           className="inline-flex h-11 items-center justify-center text-sm font-bold text-text-secondary"
         >
           Cancelar

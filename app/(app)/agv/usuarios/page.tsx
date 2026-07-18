@@ -5,6 +5,7 @@ import React from 'react'
 
 import { getCurrentUser } from '../../../../lib/auth'
 import { construirWhereUsuarios, ROL_LABEL } from '../../../../lib/usuariosWhere'
+import { DescargarBD } from '../components/DescargarBD'
 import { HeaderInterno } from '../components/HeaderInterno'
 import { AccionesUsuario } from './AccionesUsuario'
 import { FiltrosUsuarios } from './FiltrosUsuarios'
@@ -51,24 +52,20 @@ export default async function UsuariosInternoPage({
 
   return (
     <div className="min-h-dvh bg-surface">
-      <HeaderInterno activo="usuarios" nombre={user.nombre} esAdmin />
+      <HeaderInterno activo="usuarios" nombre={user.nombre} esAdmin userId={String(user.id)} />
       <main className="mx-auto max-w-[1200px] px-6 py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-text-primary">Gestión de usuarios</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">Gestión de usuarios</h1>
+            {/* Descripción de la sección (QA HU-11). */}
+            <p className="mt-1 text-sm text-text-secondary">
+              Administra los usuarios de la plataforma: crea cuentas, edita sus datos,
+              actívalas o desactívalas y restablece contraseñas.
+            </p>
+          </div>
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 items-center gap-2 rounded-lg border border-brand-primary px-4 text-sm font-bold text-brand-primary">
-              Descargar BD:
-              <a href={`/api/admin/usuarios-csv?${csvParams.toString()}`} className="underline">
-                CSV
-              </a>
-              ·
-              <a
-                href={`/api/admin/usuarios-csv?${csvParams.toString()}&formato=xlsx`}
-                className="underline"
-              >
-                Excel
-              </a>
-            </span>
+            {/* QA HU-13/HU-11.6: la descarga muestra mensaje de éxito al completarse. */}
+            <DescargarBD base="/api/admin/usuarios-csv" params={csvParams.toString()} />
             <Link
               href="/agv/usuarios/nuevo"
               className="inline-flex h-10 items-center rounded-lg bg-brand-primary px-4 text-sm font-bold text-white"

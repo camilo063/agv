@@ -48,7 +48,7 @@ export default async function EditarPredioAdminPage({
 
   return (
     <div className="min-h-dvh bg-surface">
-      <HeaderInterno nombre={user.nombre} esAdmin />
+      <HeaderInterno nombre={user.nombre} esAdmin userId={String(user.id)} />
       <main className="mx-auto max-w-[520px] px-6 py-8">
         <h1 className="mb-6 text-2xl font-bold text-text-primary">Editar predio</h1>
         <PredioForm predioId={id} initial={initial} volverA={`/agv/predios/${id}`} />

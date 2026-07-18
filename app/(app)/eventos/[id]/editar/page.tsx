@@ -16,10 +16,21 @@ export const dynamic = 'force-dynamic'
    estados: si el evento está Próximo/Vencido, esta pantalla NO aplica → se
    redirige a "Actualizar" (nuevo registro). El acceso lo controla Payload
    (overrideAccess:false: un UE no puede abrir eventos ajenos → 404). */
-export default async function EditarEventoPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditarEventoPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ volverA?: string }>
+}) {
   const { id } = await params
+  const { volverA: volverARaw } = await searchParams
   const { payload, user } = await getCurrentUser()
   if (!user) redirect('/login')
+
+  // Flujo admin (HU-12.6): retorno al panel interno; URT nunca edita.
+  const volverA = volverARaw && volverARaw.startsWith('/agv') ? volverARaw : undefined
+  if (user.role === 'URT') redirect('/agv')
 
   let evento: Evento
   try {
@@ -37,7 +48,8 @@ export default async function EditarEventoPage({ params }: { params: Promise<{ i
   // Máquina de estados: Editar solo en Activo (sin proximaFecha = Activo).
   if (evento.proximaFecha) {
     const estado = derivarEstado(evento.proximaFecha, new Date())
-    if (estado === 'proximo' || estado === 'vencido') redirect(`/eventos/${id}/actualizar`)
+    if (estado === 'proximo' || estado === 'vencido')
+      redirect(`/eventos/${id}/actualizar${volverA ? `?volverA=${encodeURIComponent(volverA)}` : ''}`)
   }
 
   const editar: EventoEditar = {
@@ -63,6 +75,7 @@ export default async function EditarEventoPage({ params }: { params: Promise<{ i
           predioInicial={idOf(evento.predio)}
           tipoInicial={idOf(evento.tipoEvento)}
           editar={editar}
+          volverA={volverA}
         />
       </main>
       <FootBar />

@@ -5,6 +5,7 @@ import React, { useState } from 'react'
 
 import { detectarDispositivo } from '../../../lib/dispositivo'
 import { Button } from '../components/Button'
+import { PasswordInput } from '../components/PasswordInput'
 
 /* Login del UE — usa /api/sesion/login (sesión ÚNICA, HU-1.4 + captura de
    dispositivo HU-1.2). Si hay sesión activa en otro dispositivo, el servidor
@@ -104,13 +105,13 @@ export function LoginForm({ next }: { next?: string }) {
 
       <label className="flex flex-col gap-1.5">
         <span className="label-agv">Contraseña</span>
-        <input
-          type="password"
+        {/* Con "ojito" para ver la contraseña escrita (QA HU-1.2). */}
+        <PasswordInput
           autoComplete="current-password"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
+          placeholder="Ingresa tu contraseña"
           className={inputCls}
         />
       </label>

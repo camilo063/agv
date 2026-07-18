@@ -14,12 +14,18 @@ export const dynamic = 'force-dynamic'
 export default async function NuevoEventoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ predio?: string; tipo?: string }>
+  searchParams: Promise<{ predio?: string; tipo?: string; volverA?: string }>
 }) {
   const { user } = await getCurrentUser()
   if (!user) redirect('/login')
 
-  const { predio, tipo } = await searchParams
+  const { predio, tipo, volverA: volverARaw } = await searchParams
+  // Flujo admin (HU-12-5): el UAGV registra eventos con retorno al panel interno.
+  const volverA = volverARaw && volverARaw.startsWith('/agv') ? volverARaw : undefined
+  // Control por rol (QA Hallazgos Generales #1): URT es solo-lectura; el UAGV
+  // solo entra aquí desde el detalle de predio (con retorno al panel).
+  if (user.role === 'URT') redirect('/agv')
+  if (user.role === 'UAGV' && !volverA) redirect('/agv')
 
   return (
     <div className="mx-auto min-h-dvh max-w-[412px] bg-white pb-24">
@@ -30,7 +36,7 @@ export default async function NuevoEventoPage({
           <h1 className="text-[2rem] font-bold leading-tight text-text-primary">Registrar evento</h1>
           <p className="mt-2 text-base text-text-secondary">Los campos con * son obligatorios</p>
         </header>
-        <EventoForm predioInicial={predio} tipoInicial={tipo} />
+        <EventoForm predioInicial={predio} tipoInicial={tipo} volverA={volverA} />
       </main>
       <FootBar />
     </div>

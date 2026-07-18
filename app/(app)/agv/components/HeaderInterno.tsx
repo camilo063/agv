@@ -14,11 +14,14 @@ export function HeaderInterno({
   activo,
   nombre,
   esAdmin,
+  userId,
 }: {
   /** Pestaña resaltada; omitir en vistas de detalle (ninguna activa). */
   activo?: 'inicio' | 'usuarios'
   nombre: string
   esAdmin: boolean
+  /** Id del usuario logueado: habilita "ver perfil" en el menú superior (QA HU-13). */
+  userId?: string
 }) {
   const tabBase = 'flex h-full items-center px-8 text-base'
   const on = 'border-b-2 border-brand-primary bg-brand-surface text-brand-primary'
@@ -57,8 +60,23 @@ export function HeaderInterno({
             CMS ↗
           </a>
         )}
-        <Image src="/icono-usuario.svg" alt="" width={28} height={28} aria-hidden="true" />
-        <span className="text-sm text-text-secondary">{nombre}</span>
+        {/* Menú superior con perfil + cerrar sesión (QA HU-13). El perfil del
+            UAGV es su propia ficha de usuario; URT solo ve su nombre. */}
+        {esAdmin && userId ? (
+          <Link
+            href={`/agv/usuarios/${userId}`}
+            title="Ver mi perfil"
+            className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-brand-surface"
+          >
+            <Image src="/icono-usuario.svg" alt="" width={28} height={28} aria-hidden="true" />
+            <span className="text-sm text-text-secondary">{nombre}</span>
+          </Link>
+        ) : (
+          <span className="flex items-center gap-2">
+            <Image src="/icono-usuario.svg" alt="" width={28} height={28} aria-hidden="true" />
+            <span className="text-sm text-text-secondary">{nombre}</span>
+          </span>
+        )}
         <LogoutInterno />
       </div>
     </header>

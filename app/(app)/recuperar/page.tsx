@@ -18,7 +18,7 @@ export default async function RecuperarPage() {
   const correo = config?.recuperacion?.correo
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col justify-center gap-10 px-10 py-12">
+    <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col justify-center gap-10 bg-white px-10 py-12 md:my-10 md:min-h-0 md:rounded-3xl md:border md:border-border md:shadow-sm">
       <div className="flex flex-col items-center gap-10">
         <Logo width={220} priority />
 

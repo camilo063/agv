@@ -46,6 +46,10 @@ export const validarEvento: CollectionBeforeValidateHook = async ({
     if (req.user?.role === 'UE' && respId !== String(req.user.id)) {
       throw new APIError('No puedes registrar eventos en un predio ajeno.', 403)
     }
+    // QA HU-12-3: predio deshabilitado → el UE no registra ni gestiona eventos.
+    if (req.user?.role === 'UE' && (predio as { habilitado?: boolean }).habilitado === false) {
+      throw new APIError('Este predio está deshabilitado. Contacta a AGV.', 403)
+    }
     data.responsable = respId
   }
 

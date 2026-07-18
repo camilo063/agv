@@ -8,6 +8,7 @@ import { idOf } from '../../../lib/estadoEventos'
 import type { EstadoEvento } from '../../../lib/reglas'
 import { construirTablaPredios } from '../../../lib/tablaPredios'
 import type { User, Zona } from '../../../payload-types'
+import { DescargarBD } from './components/DescargarBD'
 import { HeaderInterno } from './components/HeaderInterno'
 import { FiltrosTabla } from './FiltrosTabla'
 
@@ -151,7 +152,7 @@ export default async function DashboardInternoPage({
 
   return (
     <div className="min-h-dvh bg-surface">
-      <HeaderInterno activo="inicio" nombre={user.nombre} esAdmin={esAdmin} />
+      <HeaderInterno activo="inicio" nombre={user.nombre} esAdmin={esAdmin} userId={String(user.id)} />
 
       <main className="mx-auto max-w-[1280px] px-6 py-8">
         {/* ——— Sección 1: estadísticas ——— */}
@@ -180,21 +181,8 @@ export default async function DashboardInternoPage({
             }))}
             tiposEvento={tabla.tipos}
           />
-          {esAdmin && (
-            <span className="inline-flex h-10 items-center gap-2 rounded-lg border border-brand-primary px-4 text-sm font-bold text-brand-primary">
-              Descargar BD:
-              <a href={`/api/admin/predios-csv?${csvParams.toString()}`} className="underline">
-                CSV
-              </a>
-              ·
-              <a
-                href={`/api/admin/predios-csv?${csvParams.toString()}&formato=xlsx`}
-                className="underline"
-              >
-                Excel
-              </a>
-            </span>
-          )}
+          {/* QA HU-13: la descarga muestra mensaje de éxito al completarse. */}
+          {esAdmin && <DescargarBD base="/api/admin/predios-csv" params={csvParams.toString()} />}
         </section>
 
         {tabla.truncado && (

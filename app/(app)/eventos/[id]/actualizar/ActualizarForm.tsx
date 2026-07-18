@@ -19,12 +19,16 @@ export function ActualizarForm({
   predioNombre,
   tipoNombre,
   productoNombre,
+  volverA,
 }: {
   eventoId: string
   predioNombre: string
   tipoNombre: string
   productoNombre: string
+  /* Flujo admin (HU-12.6): retorno al panel interno. */
+  volverA?: string
 }) {
+  const inicio = volverA ?? '/dashboard'
   const [categorias, setCategorias] = useState<Opcion[]>([])
   const [fecha, setFecha] = useState('')
   const [cants, setCants] = useState<Record<string, string>>({})
@@ -92,8 +96,9 @@ export function ActualizarForm({
       <TarjetaExito titulo="¡Evento actualizado!">
         <p>{prox ? `Tu próximo evento será el ${prox}` : 'Sin recordatorio automático'}</p>
         <div className="mt-4 flex justify-center">
-          <Link href="/dashboard" className={botonCls('primary', 'md', 'min-w-[150px]')}>
-            Ir al dashboard
+          {/* "Ir al inicio" (QA HU-05); en flujo admin vuelve al panel interno. */}
+          <Link href={inicio} className={botonCls('primary', 'md', 'min-w-[150px]')}>
+            {volverA ? 'Volver al panel' : 'Ir al inicio'}
           </Link>
         </div>
       </TarjetaExito>
@@ -161,7 +166,7 @@ export function ActualizarForm({
           {loading ? 'Guardando…' : 'Guardar'}
         </Button>
         <Link
-          href="/dashboard"
+          href={inicio}
           className="inline-flex h-11 items-center justify-center text-sm font-bold text-text-secondary"
         >
           Cancelar

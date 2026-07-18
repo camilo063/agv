@@ -15,7 +15,7 @@ export default async function CrearUsuarioPage() {
 
   return (
     <div className="min-h-dvh bg-surface">
-      <HeaderInterno activo="usuarios" nombre={user.nombre} esAdmin />
+      <HeaderInterno activo="usuarios" nombre={user.nombre} esAdmin userId={String(user.id)} />
       <main className="mx-auto max-w-[1200px] px-6 py-8">
         <h1 className="text-2xl font-bold text-text-primary">Crear usuario</h1>
         <div className="mt-6">

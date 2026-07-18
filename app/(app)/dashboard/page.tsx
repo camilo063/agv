@@ -24,11 +24,14 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ bienvenida?: string }>
+  searchParams: Promise<{ bienvenida?: string; exito?: string }>
 }) {
   const { payload, user } = await getCurrentUser()
   if (!user) redirect('/login')
-  const { bienvenida } = await searchParams
+  // Control de acceso por rol (QA Hallazgos Generales #1): el personal interno
+  // no opera el panel del ganadero — su panel es /agv.
+  if (user.role !== 'UE') redirect('/agv')
+  const { bienvenida, exito } = await searchParams
 
   const scoped = { overrideAccess: false as const, user }
   const [{ docs: predios }, { docs: tipos }, { docs: eventos }] = await Promise.all([
@@ -75,25 +78,45 @@ export default async function DashboardPage({
         new Date(b.evento.proximaFecha as string).getTime(),
     )
 
+  // Orden por urgencia DENTRO de cada tarjeta (QA HU-04, CA-4): vencidos primero,
+  // luego próximos, luego activos (por fecha de vencimiento más cercana) y al
+  // final los tipos sin registro.
+  const PESO_ESTADO = { vencido: 0, proximo: 1, activo: 2, sin_registro: 3 } as const
   const filasDe = (predioId: string): EstadoFila[] =>
-    tipos.map((t) => {
-      const r = estados.estadoDe(predioId, String(t.id))
-      return {
-        tipoId: String(t.id),
-        tipoNombre: t.nombre,
-        estado: r.estado,
-        eventoId: r.evento ? String(r.evento.id) : undefined,
-        fecha: r.evento?.fecha ?? null,
-        proximaFecha: r.evento?.proximaFecha ?? null,
-      }
-    })
+    tipos
+      .map((t) => {
+        const r = estados.estadoDe(predioId, String(t.id))
+        return {
+          tipoId: String(t.id),
+          tipoNombre: t.nombre,
+          estado: r.estado,
+          eventoId: r.evento ? String(r.evento.id) : undefined,
+          fecha: r.evento?.fecha ?? null,
+          proximaFecha: r.evento?.proximaFecha ?? null,
+        }
+      })
+      .sort((a, b) => {
+        if (PESO_ESTADO[a.estado] !== PESO_ESTADO[b.estado]) {
+          return PESO_ESTADO[a.estado] - PESO_ESTADO[b.estado]
+        }
+        if (a.proximaFecha && b.proximaFecha) {
+          return new Date(a.proximaFecha).getTime() - new Date(b.proximaFecha).getTime()
+        }
+        return a.tipoNombre.localeCompare(b.tipoNombre)
+      })
 
   return (
     <div className="mx-auto min-h-dvh max-w-[412px] bg-white pb-24">
       {/* Header móvil del Figma (logo + Cerrar sesión). El logo lleva a /perfil. */}
       <HeaderUE />
       <div className="px-5 pt-6">
-      <p className="mb-4 text-sm text-text-secondary">Hola, {user.nombre}</p>
+      {/* El saludo "Hola, X" no está contemplado en el diseño (QA HU-04). */}
+
+      {exito === 'predio-actualizado' && (
+        <p className="mb-6 rounded-lg bg-success-bg px-3 py-2 text-center text-sm font-bold text-success-text">
+          Predio actualizado correctamente
+        </p>
+      )}
 
       {bienvenida === '1' && (
         <p className="mb-6 rounded-lg bg-success-bg px-3 py-2 text-center text-sm font-bold text-success-text">
@@ -159,12 +182,15 @@ export default async function DashboardPage({
       )}
 
       <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-text-primary">Mis predios</h2>
-          <Link href="/predios/nuevo" className={botonCls('secondary', 'sm')}>
-            + Registrar predio
-          </Link>
-        </div>
+        {/* El encabezado "Mis predios" solo aparece cuando HAY predios (QA HU-04). */}
+        {predios.length > 0 && (
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-text-primary">Mis predios</h2>
+            <Link href="/predios/nuevo" className={botonCls('secondary', 'sm')}>
+              + Registrar predio
+            </Link>
+          </div>
+        )}
         {predios.length === 0 ? (
           /* Cards empty state del Figma (UE-13): ícono 64 + texto + CTA. */
           <div className="flex flex-col items-center gap-4 rounded-[20px] border border-border bg-white px-10 py-10 text-center">

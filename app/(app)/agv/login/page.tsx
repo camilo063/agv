@@ -1,7 +1,8 @@
 import Image from 'next/image'
+import { redirect } from 'next/navigation'
 import React from 'react'
 
-import { getPayloadClient } from '../../../../lib/auth'
+import { getCurrentUser } from '../../../../lib/auth'
 import { Logo } from '../../components/Logo'
 import { LoginFormInterno } from './LoginFormInterno'
 
@@ -11,8 +12,11 @@ export const dynamic = 'force-dynamic'
    panel izquierdo verde brand con la curva del logo en blanco, y a la derecha
    el logo AGV + "Inicio de sesión" + formulario. Desktop-first. */
 export default async function LoginInternoPage() {
+  // Sesión ya activa → directo al dashboard según rol (QA Hallazgos Generales #3).
+  const { payload, user } = await getCurrentUser()
+  if (user) redirect(user.role === 'UAGV' || user.role === 'URT' ? '/agv' : '/dashboard')
+
   // DF-7: contacto administrable (global del CMS) para "¿Olvidó su contraseña?".
-  const payload = await getPayloadClient()
   const config = await payload.findGlobal({ slug: 'configuracion' }).catch(() => null)
   const contacto = [config?.recuperacion?.telefono, config?.recuperacion?.correo]
     .filter(Boolean)

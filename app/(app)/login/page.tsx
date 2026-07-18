@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import React from 'react'
 
-import { getPayloadClient } from '../../../lib/auth'
+import { redirect } from 'next/navigation'
+
+import { getCurrentUser } from '../../../lib/auth'
 import { Logo } from '../components/Logo'
 import { LoginForm } from './LoginForm'
 
@@ -18,15 +20,18 @@ export default async function LoginPage({
 }) {
   const { verificado, next } = await searchParams
 
+  // Sesión ya activa → directo al dashboard según rol (QA Hallazgos Generales #3).
+  const { payload, user } = await getCurrentUser()
+  if (user) redirect(user.role === 'UAGV' || user.role === 'URT' ? '/agv' : '/dashboard')
+
   // DF-7 CERRADA: contacto del asesor administrable desde el CMS (global).
-  const payload = await getPayloadClient()
   const config = await payload.findGlobal({ slug: 'configuracion' }).catch(() => null)
   const contacto = [config?.recuperacion?.telefono, config?.recuperacion?.correo]
     .filter(Boolean)
     .join(' · ')
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col justify-center gap-8 px-10 py-12">
+    <main className="mx-auto flex min-h-dvh max-w-[412px] flex-col justify-center gap-8 bg-white px-10 py-12 md:my-10 md:min-h-0 md:rounded-3xl md:border md:border-border md:shadow-sm">
       <header className="flex flex-col items-center gap-8 text-center">
         <Logo width={220} priority />
         <div>

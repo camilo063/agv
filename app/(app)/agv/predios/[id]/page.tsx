@@ -21,13 +21,22 @@ export const dynamic = 'force-dynamic'
    pantalla en SOLO LECTURA (sin botones) y su acceso ya viene acotado por zona
    en servidor (findByID con overrideAccess:false → 404 fuera de su zona).
    Figma: Usuario Interno - 4 (47:5967). */
-export default async function DetallePredioPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DetallePredioPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ exito?: string }>
+}) {
   const { id } = await params
+  const { exito } = await searchParams
   const { payload, user } = await getCurrentUser()
   if (!user) redirect('/agv/login')
   if (user.role !== 'UAGV' && user.role !== 'URT') redirect('/dashboard')
 
   const puedeGestionar = user.role === 'UAGV' // capacidades: URT = solo lectura
+  // Retorno de los flujos de evento (HU-12-5/12.6): siempre a ESTE detalle.
+  const volverA = encodeURIComponent(`/agv/predios/${id}`)
 
   let predio: Predio
   try {
@@ -80,11 +89,18 @@ export default async function DetallePredioPage({ params }: { params: Promise<{ 
 
   return (
     <div className="min-h-dvh bg-surface">
-      <HeaderInterno nombre={user.nombre} esAdmin={puedeGestionar} />
+      <HeaderInterno nombre={user.nombre} esAdmin={puedeGestionar} userId={String(user.id)} />
       <main className="mx-auto max-w-[1200px] px-6 py-8">
         <Link href="/agv" className="text-sm font-bold text-brand-primary">
           ‹ Volver al dashboard
         </Link>
+
+        {/* CA-07 de HU-12-1 (QA): mensaje de éxito al volver de "Editar predio". */}
+        {exito === 'predio-actualizado' && (
+          <p className="mt-4 rounded-lg bg-success-bg px-3 py-2 text-center text-sm font-bold text-success-text">
+            Predio actualizado correctamente
+          </p>
+        )}
 
         {/* ——— Sección superior: datos del predio ——— */}
         <section className="mt-4 rounded-2xl border border-border bg-white p-6">
@@ -111,10 +127,12 @@ export default async function DetallePredioPage({ params }: { params: Promise<{ 
                 </div>
                 <div>
                   <dt className="text-text-secondary">Responsable</dt>
-                  <dd className="font-bold text-text-primary">
-                    {responsable?.nombre ?? '—'}
-                    {responsable?.telefono ? ` · ${responsable.telefono}` : ''}
-                  </dd>
+                  <dd className="font-bold text-text-primary">{responsable?.nombre ?? '—'}</dd>
+                </div>
+                {/* QA HU-12: el número de celular va en su PROPIO campo. */}
+                <div>
+                  <dt className="text-text-secondary">Celular del responsable</dt>
+                  <dd className="font-bold text-text-primary">{responsable?.telefono ?? '—'}</dd>
                 </div>
                 <div>
                   <dt className="text-text-secondary">Veterinario</dt>
@@ -220,15 +238,18 @@ export default async function DetallePredioPage({ params }: { params: Promise<{ 
                     </p>
                     <div className="mt-auto flex items-center justify-center gap-4 py-2">
                       {/* "Ver historial" oculto si Sin registro (flujo). */}
-                      <HistorialTipo tipo={t.nombre} filas={filas} />
+                      <HistorialTipo tipo={t.nombre} filas={filas} volverA={`/agv/predios/${id}`} />
                       {puedeGestionar &&
                         (r.estado === 'activo' ? (
-                          <Link href={`/eventos/${vigente.id}/editar`} className={botonCls('primary', 'sm')}>
+                          <Link
+                            href={`/eventos/${vigente.id}/editar?volverA=${volverA}`}
+                            className={botonCls('primary', 'sm')}
+                          >
                             Editar evento
                           </Link>
                         ) : (
                           <Link
-                            href={`/eventos/${vigente.id}/actualizar`}
+                            href={`/eventos/${vigente.id}/actualizar?volverA=${volverA}`}
                             className={botonCls('primary', 'sm')}
                           >
                             Actualizar evento
@@ -242,7 +263,7 @@ export default async function DetallePredioPage({ params }: { params: Promise<{ 
                     {puedeGestionar && (
                       <div className="flex justify-center py-2">
                         <Link
-                          href={`/eventos/nuevo?predio=${id}&tipo=${t.id}`}
+                          href={`/eventos/nuevo?predio=${id}&tipo=${t.id}&volverA=${volverA}`}
                           className={botonCls('primary', 'sm')}
                         >
                           Registrar evento

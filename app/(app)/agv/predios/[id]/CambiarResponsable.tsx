@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 
@@ -79,8 +80,27 @@ export function CambiarResponsable({ predioId }: { predioId: string }) {
         </p>
       )}
 
+      {/* QA HU-12-2: MODAL superpuesto (no expande el encabezado de la sección)
+          + link para CREAR el usuario si aún no existe. */}
       {abierto && (
-        <div className="mt-3 w-full max-w-sm rounded-2xl border border-border bg-white p-4">
+        <div
+          className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-6"
+          onClick={() => setAbierto(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-text-primary">Cambiar responsable</h3>
+              <button
+                onClick={() => setAbierto(false)}
+                className="text-sm font-bold text-text-secondary"
+              >
+                Cerrar
+              </button>
+            </div>
+            <div className="mt-3">
           {!elegido ? (
             <>
               <input
@@ -106,6 +126,12 @@ export function CambiarResponsable({ predioId }: { predioId: string }) {
                   <li className="px-2 py-1.5 text-sm text-text-secondary">Sin resultados</li>
                 )}
               </ul>
+              <p className="mt-2 border-t border-border pt-2 text-sm text-text-secondary">
+                ¿El usuario aún no existe?{' '}
+                <Link href="/agv/usuarios/nuevo" className="font-bold text-brand-primary">
+                  Créalo aquí
+                </Link>
+              </p>
             </>
           ) : (
             <div className="text-sm">
@@ -127,6 +153,8 @@ export function CambiarResponsable({ predioId }: { predioId: string }) {
               </div>
             </div>
           )}
+            </div>
+          </div>
         </div>
       )}
     </div>

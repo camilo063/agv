@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { Button } from '../../components/Button'
+import { PasswordInput } from '../../components/PasswordInput'
 
 /* Login interno (HU-10): misma auth de Payload (/api/users/login). Tras autenticar,
    valida el ROL y redirige: UAGV/URT → /agv (dashboard interno); UE → /dashboard
@@ -13,7 +14,6 @@ export function LoginFormInterno({ contacto }: { contacto?: string }) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [olvido, setOlvido] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -63,25 +63,15 @@ export function LoginFormInterno({ contacto }: { contacto?: string }) {
 
       <label className="flex flex-col gap-1.5">
         <span className="label-agv">Contraseña*</span>
-        <div className="relative">
-          <input
-            type={showPass ? 'text' : 'password'}
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Contraseña"
-            className={`${inputCls} pr-12`}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPass((v) => !v)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-text-secondary"
-            aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-          >
-            {showPass ? '🙈' : '👁'}
-          </button>
-        </div>
+        {/* Ícono SVG de "ver contraseña" — antes salía un emoji ("monito", QA HU-10). */}
+        <PasswordInput
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Ingresa tu contraseña"
+          className={inputCls}
+        />
       </label>
 
       <button
@@ -93,12 +83,15 @@ export function LoginFormInterno({ contacto }: { contacto?: string }) {
       </button>
 
       {olvido && (
-        <p className="rounded-lg bg-info-bg px-3 py-2 text-center text-sm text-info-text">
-          {/* HU-10.1: sin flujo automático; restablecimiento manual.
-              DF-7: el dato de contacto viene del global Configuración (CMS). */}
-          Para restablecer tu contraseña contacta al administrador de AGV.
-          {contacto && <span className="font-bold"> {contacto}</span>}
-        </p>
+        <div className="rounded-lg bg-info-bg px-4 py-3 text-center text-sm text-info-text">
+          {/* HU-10.1 (QA): pantalla con el DATO DE CONTACTO para restablecer,
+              no solo el mensaje. DF-7: el contacto es administrable (global del
+              CMS, grupo "recuperación") — configúralo en /cms. */}
+          <p>Para restablecer tu contraseña contacta al administrador de AGV:</p>
+          <p className="mt-1 text-base font-bold">
+            {contacto || 'Contacto disponible con tu equipo AGV'}
+          </p>
+        </div>
       )}
 
       {error && (

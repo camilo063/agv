@@ -15,6 +15,9 @@ export default async function EditarPredioPage({ params }: { params: Promise<{ i
   const { id } = await params
   const { payload, user } = await getCurrentUser()
   if (!user) redirect('/login')
+  // Control por rol (QA Hallazgos Generales #1): el interno edita desde SU panel.
+  if (user.role === 'UAGV') redirect(`/agv/predios/${id}/editar`)
+  if (user.role !== 'UE') redirect('/agv')
 
   let predio: Predio
   try {

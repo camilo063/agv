@@ -19,7 +19,16 @@ export type FilaHistorial = {
   puedeEditar: boolean
 }
 
-export function HistorialTipo({ tipo, filas }: { tipo: string; filas: FilaHistorial[] }) {
+export function HistorialTipo({
+  tipo,
+  filas,
+  volverA,
+}: {
+  tipo: string
+  filas: FilaHistorial[]
+  /* Retorno al detalle del predio tras editar (flujo admin, QA HU-12-5). */
+  volverA?: string
+}) {
   const [abierto, setAbierto] = useState(false)
 
   if (filas.length === 0) return null
@@ -79,7 +88,7 @@ export function HistorialTipo({ tipo, filas }: { tipo: string; filas: FilaHistor
                     <td className="px-3 py-2 text-right">
                       {f.puedeEditar && (
                         <Link
-                          href={`/eventos/${f.eventoId}/editar`}
+                          href={`/eventos/${f.eventoId}/editar${volverA ? `?volverA=${encodeURIComponent(volverA)}` : ''}`}
                           className="text-sm font-bold text-brand-primary"
                         >
                           Editar

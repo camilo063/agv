@@ -13,11 +13,24 @@ export const dynamic = 'force-dynamic'
 export default async function NuevoPredioPage({
   searchParams,
 }: {
-  searchParams: Promise<{ responsable?: string }>
+  searchParams: Promise<{ responsable?: string; volverA?: string }>
 }) {
   const { user } = await getCurrentUser()
   if (!user) redirect('/login')
-  const { responsable } = await searchParams
+  const { responsable, volverA: volverARaw } = await searchParams
+
+  // Control por rol (QA Hallazgos Generales #1): el interno solo entra aquí en
+  // el flujo admin "registrar predio para un UE" (con ?responsable=). URT nunca.
+  const esAdminFlujo = user.role === 'UAGV' && Boolean(responsable)
+  if (user.role !== 'UE' && !esAdminFlujo) redirect('/agv')
+
+  // Retorno del flujo admin (QA HU-11.1): "Cancelar" vuelve al panel interno.
+  const volverA =
+    volverARaw && volverARaw.startsWith('/agv')
+      ? volverARaw
+      : esAdminFlujo
+        ? `/agv/usuarios/${responsable}`
+        : '/dashboard'
 
   return (
     <div className="mx-auto min-h-dvh max-w-[412px] bg-white pb-24">
@@ -28,7 +41,7 @@ export default async function NuevoPredioPage({
           <h1 className="text-[2rem] font-bold leading-tight text-text-primary">Registrar predio</h1>
           <p className="mt-2 text-base text-text-secondary">Los campos con * son obligatorios</p>
         </header>
-        <PredioForm responsable={user.role === 'UAGV' ? responsable : undefined} />
+        <PredioForm responsable={esAdminFlujo ? responsable : undefined} volverA={volverA} />
       </main>
       <FootBar />
     </div>

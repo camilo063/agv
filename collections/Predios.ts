@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Where } from 'payload'
 import { soloAdmin } from '../access/soloAdmin'
 import { readScopePorZona } from '../access/byZona'
 import { fijarResponsable, sincronizarResponsableEventos } from '../hooks/predioResponsable'
@@ -19,13 +19,31 @@ export const Predios: CollectionConfig = {
   },
   access: {
     // URT filtra por su zona vía el departamento del predio (constraint de query).
-    read: readScopePorZona({ zonaField: 'departamento', responsableField: 'responsable' }),
+    // QA HU-12-3: un predio DESHABILITADO deja de ser visible/gestionable para el
+    // UE inmediatamente, aunque tenga sesión abierta (constraint en servidor).
+    read: (args) => {
+      if (args.req.user?.role === 'UE') {
+        const soloPropiosHabilitados: Where = {
+          and: [
+            { responsable: { equals: args.req.user.id } },
+            { habilitado: { equals: true } },
+          ],
+        }
+        return soloPropiosHabilitados
+      }
+      return readScopePorZona({ zonaField: 'departamento', responsableField: 'responsable' })(args)
+    },
     // El UE crea/edita sus predios; el admin todos. URT NO (solo lectura).
     create: ({ req: { user } }) => user?.role === 'UAGV' || user?.role === 'UE',
     update: ({ req: { user } }) => {
       if (!user) return false
       if (user.role === 'UAGV') return true
-      if (user.role === 'UE') return { responsable: { equals: user.id } }
+      if (user.role === 'UE') {
+        const soloPropiosHabilitados: Where = {
+          and: [{ responsable: { equals: user.id } }, { habilitado: { equals: true } }],
+        }
+        return soloPropiosHabilitados
+      }
       return false // URT
     },
     delete: soloAdmin, // habilitar/deshabilitar y eliminar son acciones de admin.

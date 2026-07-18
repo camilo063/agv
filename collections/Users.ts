@@ -50,6 +50,23 @@ export const Users: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [validarPerfil],
+    beforeChange: [
+      // QA HU-11.2 / HU-11.3: al RESTABLECER la contraseña o DESACTIVAR un
+      // usuario se invalidan sus sesiones abiertas (el token JWT referencia una
+      // sesión por sid; sin sesión, el token deja de servir). Antes el usuario
+      // seguía logueado con la sesión vieja hasta que salía por su cuenta.
+      ({ data, operation }) => {
+        if (
+          operation === 'update' &&
+          data &&
+          ((typeof data.password === 'string' && data.password.length > 0) ||
+            data.activo === false)
+        ) {
+          data.sessions = []
+        }
+        return data
+      },
+    ],
     beforeLogin: [
       // HU-11.3 / 02-reglas §6: usuario desactivado NO inicia sesión (aplica a
       // TODOS los logins: front UE, panel interno y back-office /cms).

@@ -11,6 +11,7 @@ import {
   validarDocumento,
 } from '../../../lib/validaciones'
 import { Button } from '../components/Button'
+import { PasswordInput } from '../components/PasswordInput'
 
 /* Registro UE (HU-01) — flujo UE-Registro. Validaciones replicadas del servidor
    (lib/validaciones compartida) solo para UX; la autoridad es /api/registro.
@@ -67,8 +68,14 @@ export function RegistroForm() {
       })
       if (!res.ok) {
         const j = await res.json().catch(() => null)
-        if (j?.errores) setErrores(j.errores)
-        else setGeneral('No se pudo completar el registro. Intenta de nuevo.')
+        if (j?.errores) {
+          setErrores(j.errores)
+          // Errores sin campo asociado (p. ej. rate-limit) van al aviso general
+          // — antes se perdían y el usuario veía un mensaje genérico (QA HU-01).
+          if (j.errores.general) setGeneral(j.errores.general)
+        } else {
+          setGeneral('No se pudo completar el registro. Intenta de nuevo.')
+        }
         return
       }
       // Criterio 4: login automático (mismo endpoint de sesión única, con
@@ -100,7 +107,12 @@ export function RegistroForm() {
     <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
       <label className={labelCls}>
         <span className={labelSpan}>Nombre *</span>
-        <input className={inputCls} value={f.nombre} onChange={(e) => set('nombre', e.target.value)} />
+        <input
+          className={inputCls}
+          placeholder="Nombre y apellido"
+          value={f.nombre}
+          onChange={(e) => set('nombre', e.target.value)}
+        />
         {errores.nombre && <span className={errCls}>{errores.nombre}</span>}
       </label>
 
@@ -161,25 +173,29 @@ export function RegistroForm() {
 
       <label className={labelCls}>
         <span className={labelSpan}>Contraseña *</span>
-        <input
-          type="password"
+        <PasswordInput
           className={inputCls}
           autoComplete="new-password"
+          placeholder="Mínimo 8 caracteres, 1 mayúscula y 1 número"
           value={f.password}
           onChange={(e) => set('password', e.target.value)}
         />
-        <span className="text-xs text-text-secondary">
-          Mínimo 8 caracteres, 1 mayúscula y 1 número.
-        </span>
-        {errores.password && <span className={errCls}>{errores.password}</span>}
+        {/* Ayuda O error, nunca ambos: evita el texto repetido bajo el campo (QA HU-01). */}
+        {errores.password ? (
+          <span className={errCls}>{errores.password}</span>
+        ) : (
+          <span className="text-xs text-text-secondary">
+            Mínimo 8 caracteres, 1 mayúscula y 1 número.
+          </span>
+        )}
       </label>
 
       <label className={labelCls}>
         <span className={labelSpan}>Confirmar contraseña *</span>
-        <input
-          type="password"
+        <PasswordInput
           className={inputCls}
           autoComplete="new-password"
+          placeholder="Repite la contraseña"
           value={f.confirmPassword}
           onChange={(e) => set('confirmPassword', e.target.value)}
         />

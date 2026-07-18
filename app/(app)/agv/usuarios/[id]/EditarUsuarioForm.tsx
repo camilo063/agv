@@ -239,8 +239,10 @@ export function EditarUsuarioForm({ initial }: { initial: UsuarioEditar }) {
       {resetAbierto && (
         <div className="rounded-2xl border border-border bg-white p-5">
           <p className="text-sm font-bold text-text-primary">Nueva contraseña</p>
+          {/* Sin referencias internas a números de HU en la UI (QA HU-11.2). */}
           <p className="mt-1 text-xs text-text-secondary">
-            El administrador define la nueva contraseña directamente (HU-11.4).
+            Define la nueva contraseña y comunícala al usuario. Al guardarla, la
+            sesión activa del usuario se cerrará automáticamente.
           </p>
           <div className="mt-3 flex flex-col gap-3">
             <input

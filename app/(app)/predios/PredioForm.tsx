@@ -46,6 +46,7 @@ export function PredioForm({
   const [zonas, setZonas] = useState<Opcion[]>([])
   const [tiposExplotacion, setTiposExplotacion] = useState<Opcion[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [errores, setErrores] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [creadoId, setCreadoId] = useState<string | null>(null)
 
@@ -92,7 +93,14 @@ export function PredioForm({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
-    if (!puedeGuardar) {
+    // Mensajes descriptivos EN el campo (QA HU-03): uno por cada obligatorio.
+    const errs: Record<string, string> = {}
+    if (!form.nombre.trim()) errs.nombre = 'Ingresa el nombre del predio.'
+    if (!form.vereda.trim()) errs.vereda = 'Ingresa la vereda del predio.'
+    if (!form.municipio.trim()) errs.municipio = 'Ingresa el municipio del predio.'
+    if (!form.departamento) errs.departamento = 'Selecciona el departamento.'
+    setErrores(errs)
+    if (Object.keys(errs).length > 0 || !puedeGuardar) {
       setError('Completa los campos obligatorios (*).')
       return
     }
@@ -123,7 +131,10 @@ export function PredioForm({
       }
       const json = await res.json()
       if (esEdicion) {
-        router.push(volverA)
+        // CA-07 (HU-12-1 / HU-4.1): el destino muestra "Predio actualizado
+        // correctamente" leyendo ?exito= (dashboard UE y detalle admin).
+        const sep = volverA.includes('?') ? '&' : '?'
+        router.push(`${volverA}${sep}exito=predio-actualizado`)
         router.refresh()
       } else {
         // Modal de éxito con la CTA "Registrar evento" (flujo UE-Registro de predios).
@@ -138,14 +149,21 @@ export function PredioForm({
 
   if (creadoId) {
     // Success Pop-up del Figma (46:736): Cerrar (secondary) + Registrar evento (primary).
+    // Flujo admin (responsable presente): los destinos vuelven al PANEL INTERNO —
+    // antes el admin quedaba "atrapado" en el front del UE (QA HU-11.1 / HU-12-5).
+    const esFlujoAdmin = Boolean(responsable)
+    const cerrarHref = esFlujoAdmin ? `/agv/predios/${creadoId}` : '/dashboard'
+    const eventoHref = esFlujoAdmin
+      ? `/eventos/nuevo?predio=${creadoId}&volverA=${encodeURIComponent(`/agv/predios/${creadoId}`)}`
+      : `/eventos/nuevo?predio=${creadoId}`
     return (
       <TarjetaExito titulo="¡Predio registrado!">
         <p>{form.nombre} fue registrado exitosamente</p>
         <div className="mt-4 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/dashboard" className={botonCls('secondary', 'md', 'min-w-[150px]')}>
-            Cerrar
+          <Link href={cerrarHref} className={botonCls('secondary', 'md', 'min-w-[150px]')}>
+            {esFlujoAdmin ? 'Ir al detalle del predio' : 'Cerrar'}
           </Link>
-          <Link href={`/eventos/nuevo?predio=${creadoId}`} className={botonCls('primary', 'md', 'min-w-[150px]')}>
+          <Link href={eventoHref} className={botonCls('primary', 'md', 'min-w-[150px]')}>
             Registrar evento
           </Link>
         </div>
@@ -153,16 +171,22 @@ export function PredioForm({
     )
   }
 
+  const errCls = 'text-xs font-bold text-error-text'
+
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+      {/* Título de agrupación (QA HU-03): Información del predio. */}
+      <h2 className="mt-1 text-lg font-bold text-text-primary">Información del predio</h2>
+
       <label className={labelCls}>
         <span className={labelSpan}>Nombre del predio *</span>
         <input
           className={inputCls}
+          placeholder="Ej: La Esperanza"
           value={form.nombre}
           onChange={(e) => set('nombre', e.target.value)}
-          required
         />
+        {errores.nombre && <span className={errCls}>{errores.nombre}</span>}
       </label>
 
       <label className={labelCls}>
@@ -172,7 +196,10 @@ export function PredioForm({
           value={form.tipoExplotacion}
           onChange={(e) => set('tipoExplotacion', e.target.value)}
         >
-          <option value="">Se infiere automáticamente</option>
+          {/* TODO(D-2): la INFERENCIA automática requiere la tabla de mapeo
+              categorías→explotación del cliente. Mientras tanto el campo es un
+              select opcional con los tipos administrables del catálogo. */}
+          <option value="">Selecciona el tipo (opcional)</option>
           {tiposExplotacion.map((t) => (
             <option key={t.id} value={t.id}>
               {t.nombre}
@@ -185,6 +212,7 @@ export function PredioForm({
         <span className={labelSpan}>Dirección</span>
         <input
           className={inputCls}
+          placeholder="Ej: Km 4 vía al municipio"
           value={form.direccion}
           onChange={(e) => set('direccion', e.target.value)}
         />
@@ -194,20 +222,22 @@ export function PredioForm({
         <span className={labelSpan}>Vereda *</span>
         <input
           className={inputCls}
+          placeholder="Ej: El Carmelo"
           value={form.vereda}
           onChange={(e) => set('vereda', e.target.value)}
-          required
         />
+        {errores.vereda && <span className={errCls}>{errores.vereda}</span>}
       </label>
 
       <label className={labelCls}>
         <span className={labelSpan}>Municipio *</span>
         <input
           className={inputCls}
+          placeholder="Ej: Rionegro"
           value={form.municipio}
           onChange={(e) => set('municipio', e.target.value)}
-          required
         />
+        {errores.municipio && <span className={errCls}>{errores.municipio}</span>}
       </label>
 
       <label className={labelCls}>
@@ -216,25 +246,27 @@ export function PredioForm({
           className={inputCls}
           value={form.departamento}
           onChange={(e) => set('departamento', e.target.value)}
-          required
         >
-          <option value="">Selecciona…</option>
+          <option value="">Selecciona el departamento</option>
           {zonas.map((z) => (
             <option key={z.id} value={z.id}>
               {z.nombre}
             </option>
           ))}
         </select>
+        {errores.departamento && <span className={errCls}>{errores.departamento}</span>}
       </label>
 
+      {/* Título de agrupación (QA HU-03): información del veterinario, OPCIONAL. */}
       <fieldset className="mt-2 flex flex-col gap-4 rounded-xl border border-border p-4">
         <legend className="px-2 text-sm font-bold text-text-secondary">
-          Información del veterinario
+          Información del veterinario (opcional)
         </legend>
         <label className={labelCls}>
           <span className={labelSpan}>Nombre</span>
           <input
             className={inputCls}
+            placeholder="Ej: Dr. Juan Mesa"
             value={form.vetNombre}
             onChange={(e) => set('vetNombre', e.target.value)}
           />
@@ -243,8 +275,11 @@ export function PredioForm({
           <span className={labelSpan}>Teléfono</span>
           <input
             className={inputCls}
+            inputMode="numeric"
+            maxLength={10}
+            placeholder="3001234567"
             value={form.vetTelefono}
-            onChange={(e) => set('vetTelefono', e.target.value)}
+            onChange={(e) => set('vetTelefono', e.target.value.replace(/\D/g, ''))}
           />
         </label>
         <label className={labelCls}>
@@ -252,6 +287,7 @@ export function PredioForm({
           <input
             type="email"
             className={inputCls}
+            placeholder="correo@ejemplo.com"
             value={form.vetCorreo}
             onChange={(e) => set('vetCorreo', e.target.value)}
           />

@@ -94,7 +94,7 @@ export default async function DetalleUsuarioPage({
 
   return (
     <div className="min-h-dvh bg-surface">
-      <HeaderInterno activo="usuarios" nombre={user.nombre} esAdmin />
+      <HeaderInterno activo="usuarios" nombre={user.nombre} esAdmin userId={String(user.id)} />
       <main className="mx-auto max-w-[1200px] px-6 py-8">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-text-primary">{usuario.nombre}</h1>
@@ -113,7 +113,17 @@ export default async function DetalleUsuarioPage({
 
           {usuario.role === 'UE' && (
             <section>
-              <h2 className="text-lg font-bold text-text-primary">Predios asociados</h2>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-lg font-bold text-text-primary">Predios asociados</h2>
+                {/* QA Hallazgos Generales #4: crear predio para un UE EXISTENTE
+                    sin tener que crear un usuario nuevo. */}
+                <Link
+                  href={`/predios/nuevo?responsable=${usuario.id}&volverA=${encodeURIComponent(`/agv/usuarios/${usuario.id}`)}`}
+                  className="inline-flex h-9 items-center rounded-lg bg-brand-primary px-3 text-sm font-bold text-white"
+                >
+                  + Crear predio
+                </Link>
+              </div>
               {filasPredios.length === 0 ? (
                 <p className="mt-3 rounded-2xl border border-border bg-white p-6 text-center text-sm text-text-secondary">
                   Este usuario no tiene predios registrados.
